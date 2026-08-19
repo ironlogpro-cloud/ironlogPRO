@@ -2773,7 +2773,7 @@ const FEEDBACK_TELEGRAM = 'https://t.me/holy_nikbakht'; // آیدی تلگرام
 const APP_SHARE_URL  = 'https://holy-nikbakht.github.io/ironlogPRO/'; // آدرس گیت‌هاب‌پیجز اپ
 // ═══ آدرس Cloudflare Worker که واسط بین اپ و دیتابیس لایسنس (گیت‌هاب) است ═══
 // این آدرس رو بعد از دیپلوی ورکر (طبق راهنما) با آدرس واقعی خودتون جایگزین کنید
-const LICENSE_WORKER_URL = 'https://ironlog-license.nova-3d30d7.workers.dev';
+const LICENSE_WORKER_URL = 'https://ironlog-licenses.nova-3d30d7.workers.dev';
 const CIRCUMFERENCE = 2 * Math.PI * 68;
 const RPE_LABELS    = ['','','','','','','سبک','متوسط','سخت','خیلی سخت','بیشینه'];
 const THEMES = [
@@ -8658,6 +8658,55 @@ async function submitLicense() {
 }
 
 // ═══════════════════════════════════════════════════
+//  USAGE TRACKING (سبک، غیرمسدودکننده — برای آمار پنل ادمین)
+// ═══════════════════════════════════════════════════
+// این تابع هیچ داده‌ی شخصی/محتوای تمرینی کاربر را ارسال نمی‌کند — فقط چند عدد آماری کلی.
+// حداکثر یک‌بار در هر ۱۲ ساعت اجرا می‌شود تا فشار اضافی روی سرور ایجاد نشود.
+// در صورت شکست (آفلاین بودن و غیره) کاملاً بی‌صدا رد می‌شود و تجربه کاربر را مختل نمی‌کند.
+function trackUsage() {
+  try {
+    if (!LICENSE_WORKER_URL || LICENSE_WORKER_URL.includes('YOUR-SUBDOMAIN')) return;
+    const lastTrack = parseInt(localStorage.getItem('ironlog_last_track') || '0');
+    if (Date.now() - lastTrack < 12 * 60 * 60 * 1000) return; // throttle ۱۲ ساعته
+    localStorage.setItem('ironlog_last_track', String(Date.now()));
+
+    const totalWorkouts = Array.isArray(appData.history) ? appData.history.length : 0;
+    const totalSets = Array.isArray(appData.history)
+      ? appData.history.reduce((sum, h) => {
+          const exObj = h.exercises || {};
+          return sum + Object.values(exObj).reduce((s2, ex) => {
+            const doneSets = (ex.sets || []).filter(s => s.done).length;
+            const doneSuper = (ex.supersetSets || []).filter(s => s.done).length;
+            return s2 + doneSets + doneSuper;
+          }, 0);
+        }, 0)
+      : 0;
+    const lastWorkoutAt = totalWorkouts ? (appData.history[appData.history.length - 1].date || '') : '';
+
+    const payload = {
+      deviceId: getDeviceId(),
+      licenseCode: localStorage.getItem('ironlog_license_code') || '',
+      appVersion: String(DATA_VERSION),
+      stats: {
+        daysCount: (appData.days || []).length,
+        totalWorkouts,
+        totalSets,
+        streak: (typeof calcStreak === 'function') ? (calcStreak() || 0) : 0,
+        lastWorkoutAt: String(lastWorkoutAt || ''),
+        theme: (appData.settings && appData.settings.theme) || 'default',
+      },
+    };
+
+    fetch(LICENSE_WORKER_URL + '/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    }).catch(() => {});
+  } catch (e) { /* بی‌صدا رد شو — آمار هرگز نباید تجربه کاربر را مختل کند */ }
+}
+
+// ═══════════════════════════════════════════════════
 //  WELCOME SCREEN
 // ═══════════════════════════════════════════════════
 function checkFirstVisit() {
@@ -14164,6 +14213,7 @@ function init() {
   checkAndResumeWorkout();
   registerSW();
   checkFirstVisit();
+  trackUsage();
   checkAbsenceNotification();
   // v2.5: setup new UX features
   setupStickyExerciseHeader();
