@@ -8658,6 +8658,59 @@ async function submitLicense() {
 }
 
 // ═══════════════════════════════════════════════════
+//  LICENSE RE-VERIFICATION (تا ابطال لایسنس روی دستگاه هم اعمال شود)
+// ═══════════════════════════════════════════════════
+// بررسی دوره‌ای اعتبار لایسنس از سرور. اگر آفلاین/خطا باشد، بی‌صدا رد می‌شویم
+// و فرض بر معتبر بودن می‌گذاریم تا کاربر مجاز به‌خاطر قطعی اینترنت قفل نشود.
+const LICENSE_VERIFY_THROTTLE_MS = 60 * 60 * 1000; // حداکثر هر ۱ ساعت یک بار درخواست واقعی
+async function verifyLicenseWithServer(force) {
+  try {
+    if (!LICENSE_WORKER_URL || LICENSE_WORKER_URL.includes('YOUR-SUBDOMAIN')) return;
+    if (localStorage.getItem('ironlog_license_status') !== 'active') return; // اگر اصلاً فعال نشده، کاری نداریم
+    const code = localStorage.getItem('ironlog_license_code');
+    if (!code) return;
+
+    const lastCheck = parseInt(localStorage.getItem('ironlog_last_license_check') || '0');
+    if (!force && Date.now() - lastCheck < LICENSE_VERIFY_THROTTLE_MS) return;
+    localStorage.setItem('ironlog_last_license_check', String(Date.now()));
+
+    const res = await fetch(LICENSE_WORKER_URL + '/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, deviceId: getDeviceId() }),
+      keepalive: true,
+    });
+    if (!res.ok) return; // خطای سرور — بی‌خیال، دفعه بعد دوباره تلاش می‌شود
+    const data = await res.json().catch(() => null);
+    if (!data || !data.ok) return;
+
+    if (data.valid === false) {
+      // لایسنس دیگر معتبر نیست — بلافاصله قفل کن
+      localStorage.setItem('ironlog_license_status', 'revoked');
+      const screen = document.getElementById('license-screen');
+      if (screen) screen.classList.remove('hidden');
+      const errEl = document.getElementById('license-error');
+      if (errEl) {
+        const messages = {
+          revoked: 'این لایسنس توسط مدیر باطل شده است',
+          device_mismatch: 'این لایسنس روی دستگاه دیگری فعال شده است',
+          not_found: 'این لایسنس دیگر معتبر نیست',
+        };
+        errEl.textContent = messages[data.reason] || 'دسترسی شما به این نرم‌افزار لغو شده است';
+      }
+    }
+  } catch (e) { /* بی‌صدا رد شو — آفلاین یا خطای شبکه، مشکلی نیست */ }
+}
+function setupLicenseWatcher() {
+  // برگشت به تب/اپ (مثلاً از پس‌زمینه یا سوییچ اپ روی موبایل)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') verifyLicenseWithServer(false);
+  });
+  // چک دوره‌ای برای مواقعی که اپ خیلی وقت باز/فعال می‌ماند
+  setInterval(() => verifyLicenseWithServer(false), 6 * 60 * 60 * 1000); // هر ۶ ساعت
+}
+
+// ═══════════════════════════════════════════════════
 //  USAGE TRACKING (سبک، غیرمسدودکننده — برای آمار پنل ادمین)
 // ═══════════════════════════════════════════════════
 // این تابع هیچ داده‌ی شخصی/محتوای تمرینی کاربر را ارسال نمی‌کند — فقط چند عدد آماری کلی.
@@ -14213,6 +14266,8 @@ function init() {
   checkAndResumeWorkout();
   registerSW();
   checkFirstVisit();
+  verifyLicenseWithServer(true); // چک واقعی هر بار که اپ باز می‌شود
+  setupLicenseWatcher();
   trackUsage();
   checkAbsenceNotification();
   // v2.5: setup new UX features
