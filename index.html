@@ -207,26 +207,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     0 4px 14px rgba(0,0,0,0.35);
 }
 .bottom-nav-fx{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0;}
-@property --nav-border-angle{
-  syntax:'<angle>';
-  inherits:false;
-  initial-value:0deg;
+.bottom-nav-border{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible;}
+.bottom-nav-border-rect{
+  fill:none;
+  stroke:var(--accent);
+  stroke-width:1.4;
+  stroke-linecap:round;
+  stroke-dasharray:12 88;
+  opacity:.8;
+  animation:navBorderTravel 3.6s linear infinite;
 }
-.bottom-nav-fx::before{
-  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;
-  background:conic-gradient(from var(--nav-border-angle) at 50% 50%,transparent 0%,rgba(255,255,255,0.28) 6%,var(--accent) 12%,var(--accent2) 18%,transparent 26%,transparent 100%);
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  animation:navBorderSpin 4.5s linear infinite;
-  opacity:.85;
-  pointer-events:none;
-}
-@keyframes navBorderSpin{to{--nav-border-angle:360deg;}}
-[data-theme="light"] .bottom-nav-fx::before,[data-theme="cream"] .bottom-nav-fx::before,[data-theme="ice"] .bottom-nav-fx::before{
-  background:conic-gradient(from var(--nav-border-angle) at 50% 50%,transparent 0%,rgba(0,0,0,0.12) 6%,var(--accent) 12%,var(--accent2) 18%,transparent 26%,transparent 100%);
-  opacity:.6;
-}
+@keyframes navBorderTravel{to{stroke-dashoffset:-100;}}
+[data-theme="light"] .bottom-nav-border-rect,[data-theme="cream"] .bottom-nav-border-rect,[data-theme="ice"] .bottom-nav-border-rect{opacity:.6;}
+
 
 .nav-indicator{
   background:linear-gradient(160deg,var(--accent-soft),rgba(255,255,255,0.02) 70%);
@@ -2386,6 +2379,7 @@ body.tour-active{overflow:hidden;}
 <!-- ═══ BOTTOM NAV ═══ -->
 <nav class="bottom-nav">
   <span class="bottom-nav-fx" aria-hidden="true"></span>
+  <svg class="bottom-nav-border" aria-hidden="true"><rect class="bottom-nav-border-rect" pathLength="100"></rect></svg>
   <div class="nav-indicator" id="nav-indicator"></div>
   <button class="nav-btn active" id="nav-workout" onclick="switchPage('workout')">
     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M4 12h16"/><rect x="2" y="9" width="3" height="6" rx="1"/><rect x="19" y="9" width="3" height="6" rx="1"/></svg></span>
@@ -7758,8 +7752,29 @@ document.getElementById('input-modal-field').addEventListener('keydown',e=>{if(e
 });
 
 // ═══════════════════════════════════════════════════
-//  RESUME SESSION
+//  NAV BORDER (خط نورانی متحرک دور فوتر — با SVG)
 // ═══════════════════════════════════════════════════
+function sizeNavBorder() {
+  const nav = document.querySelector('.bottom-nav');
+  const svg = nav ? nav.querySelector('.bottom-nav-border') : null;
+  const rect = svg ? svg.querySelector('.bottom-nav-border-rect') : null;
+  if (!nav || !svg || !rect) return;
+  const w = nav.offsetWidth, h = nav.offsetHeight;
+  if (!w || !h) return; // فوتر موقتاً مخفیه (مثلاً وسط تمرین)؛ بعداً دوباره صدا زده می‌شه
+  const r = 26; // باید با border-radius واقعی .bottom-nav یکی باشه
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  rect.setAttribute('x', 0.75);
+  rect.setAttribute('y', 0.75);
+  rect.setAttribute('width', Math.max(0, w - 1.5));
+  rect.setAttribute('height', Math.max(0, h - 1.5));
+  rect.setAttribute('rx', r);
+  rect.setAttribute('ry', r);
+}
+// هر بار فوتر از حالت مخفی (وسط تمرین) به حالت نمایان برمی‌گرده، دوباره اندازه‌گیری کن
+new MutationObserver(() => requestAnimationFrame(sizeNavBorder))
+  .observe(document.getElementById('app'), { attributes:true, attributeFilter:['class'] });
+
+
 function checkAndResumeWorkout() {
   const savedDayId =localStorage.getItem('ironlog_active_day_id');
   const savedSess  =localStorage.getItem('ironlog_active_session');
@@ -14764,6 +14779,9 @@ function init() {
   registerSW();
   checkFirstVisit();
   verifyLicenseWithServer(true); // چک واقعی هر بار که اپ باز می‌شود
+  sizeNavBorder();
+  window.addEventListener('resize', sizeNavBorder);
+  window.addEventListener('orientationchange', sizeNavBorder);
   setupLicenseWatcher();
   trackUsage();
   checkAbsenceNotification();
