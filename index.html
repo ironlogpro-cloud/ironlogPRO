@@ -90,7 +90,7 @@
 [data-theme="mono"]{--bg:#0a0a0a;--bg2:#101010;--bg3:#171717;--bg4:#202020;--glass:rgba(255,255,255,0.025);--glass2:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.13);--accent:#e4e4e4;--accent2:#a8a8a8;--accent-glow:rgba(228,228,228,0.16);--accent-soft:rgba(228,228,228,0.09);--green:#f2f2f2;--green-soft:rgba(242,242,242,0.10);--red:#7a7a7a;--orange:#9c9c9c;--yellow:#c4c4c4;--text:#f2f2f2;--text2:#a0a0a0;--text3:#686868;--metal:#b0b0b0;--metal-soft:rgba(176,176,176,0.12);--metal-glow:rgba(176,176,176,0.16);--glass-bg:rgba(10,10,10,0.90);--glass-card:rgba(255,255,255,0.03);--glass-border:rgba(255,255,255,0.09);}
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;color:var(--text);font-family:'Kahroba','Vazirmatn',system-ui,sans-serif;font-size:14px;line-height:1.6;overflow:hidden;}
+html,body{height:100%;height:100dvh;background-color:var(--bg);color:var(--text);font-family:'Kahroba','Vazirmatn',system-ui,sans-serif;font-size:14px;line-height:1.6;overflow:hidden;}
 /* ═══ MESH GRADIENT پس‌زمینه ═══ چند لکه‌ی نور محو که عمق و بافت می‌سازند، بدون اینکه خوانایی را تحت تاثیر قرار دهند */
 /* حالت پیش‌فرض «شخصی‌سازی‌شده»: mesh gradient ثابت که مستقل از تم اجرا می‌شود */
 body{
@@ -174,7 +174,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .nav-btn:active{transform:scale(0.93);}
 
 /* ═══ Active session — reclaim vertical space for logging ═══ */
-#app.on-workout-page .bottom-nav{height:0;margin:0;padding:0;border-width:0;opacity:0;transform:translateY(60%);pointer-events:none;overflow:hidden;}
+#app.on-workout-page .bottom-nav,#app.session-active .bottom-nav{height:0;margin:0;padding:0;border-width:0;opacity:0;transform:translateY(60%);pointer-events:none;overflow:hidden;}
 #app.session-active .page,#app.on-workout-page .page{padding-bottom:20px;}
 #app.session-active #workout-page-header{padding:8px 18px 7px;margin:6px 12px 10px;border-radius:18px;}
 #app.session-active #workout-page-header h1{font-size:15px;}
