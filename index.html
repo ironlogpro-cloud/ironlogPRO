@@ -174,8 +174,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .nav-btn:active{transform:scale(0.93);}
 
 /* ═══ Active session — reclaim vertical space for logging ═══ */
-#app.session-active.on-workout-page .bottom-nav{height:0;margin:0;padding:0;border-width:0;opacity:0;transform:translateY(60%);pointer-events:none;overflow:hidden;}
-#app.session-active .page{padding-bottom:20px;}
+#app.on-workout-page .bottom-nav{height:0;margin:0;padding:0;border-width:0;opacity:0;transform:translateY(60%);pointer-events:none;overflow:hidden;}
+#app.session-active .page,#app.on-workout-page .page{padding-bottom:20px;}
 #app.session-active #workout-page-header{padding:8px 18px 7px;margin:6px 12px 10px;border-radius:18px;}
 #app.session-active #workout-page-header h1{font-size:15px;}
 #app.session-active #workout-page-header .header-logo-badge{width:24px;height:24px;border-radius:8px;}
@@ -188,8 +188,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 #app.session-active #workout-page-header .workout-timer-badge{font-size:13px;padding:6px 16px;gap:7px;box-shadow:0 2px 14px rgba(34,197,94,0.22),inset 0 1px 0 rgba(255,255,255,0.12);}
 #app.session-active #workout-page-header .workout-timer-badge svg{width:14px;height:14px;}
 #app.session-active #workout-page-header .page-help-btn{width:28px;height:28px;}
-#app.session-active .toast{bottom:calc(20px + env(safe-area-inset-bottom, 0px));}
-#app.session-active .undo-bar{bottom:calc(20px + env(safe-area-inset-bottom, 0px));}
+#app.session-active .toast,#app.on-workout-page .toast{bottom:calc(20px + env(safe-area-inset-bottom, 0px));}
+#app.session-active .undo-bar,#app.on-workout-page .undo-bar{bottom:calc(20px + env(safe-area-inset-bottom, 0px));}
 .bottom-nav{transition:transform .38s cubic-bezier(.4,0,.2,1),opacity .3s ease,height .38s cubic-bezier(.4,0,.2,1),margin .38s cubic-bezier(.4,0,.2,1);}
 
 /* ═══ v4 — FOOTER / BOTTOM NAV: بازطراحی کامل به سبک داک شناور تخصصی ═══ */
@@ -207,12 +207,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     0 18px 40px -12px rgba(0,0,0,0.65),
     0 4px 14px rgba(0,0,0,0.35);
 }
-.bottom-nav::before{
+.bottom-nav-fx{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0;}
+.bottom-nav-fx::before{
   content:'';position:absolute;top:0;left:14%;right:14%;height:1px;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent);
   pointer-events:none;
 }
-[data-theme="light"] .bottom-nav::before,[data-theme="cream"] .bottom-nav::before,[data-theme="ice"] .bottom-nav::before{
+[data-theme="light"] .bottom-nav-fx::before,[data-theme="cream"] .bottom-nav-fx::before,[data-theme="ice"] .bottom-nav-fx::before{
   background:linear-gradient(90deg,transparent,rgba(0,0,0,0.10),transparent);
 }
 
@@ -269,7 +270,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     0 22px 48px -14px rgba(0,0,0,0.7),
     0 6px 18px -4px var(--accent-glow);
 }
-.bottom-nav::before{
+.bottom-nav-fx::before{
   left:10%;right:10%;height:1.5px;
   background:linear-gradient(90deg,transparent,var(--accent) 45%,var(--accent2) 55%,transparent);
   background-size:220% 100%;
@@ -277,7 +278,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   opacity:.75;
 }
 @keyframes navTopShimmer{0%,100%{background-position:130% 0;}50%{background-position:-30% 0;}}
-[data-theme="light"] .bottom-nav::before,[data-theme="cream"] .bottom-nav::before,[data-theme="ice"] .bottom-nav::before{
+[data-theme="light"] .bottom-nav-fx::before,[data-theme="cream"] .bottom-nav-fx::before,[data-theme="ice"] .bottom-nav-fx::before{
   background:linear-gradient(90deg,transparent,var(--accent) 45%,var(--accent2) 55%,transparent);background-size:220% 100%;opacity:.5;
 }
 
@@ -360,15 +361,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 @keyframes navBtnRise{0%{opacity:0;transform:translateY(10px);}100%{opacity:1;transform:translateY(0);}}
 
 /* درخشش عبوریِ نرم که هر چند ثانیه یک‌بار از روی کل نوار سُر می‌خوره — شیشه‌ی واقعی زیر نور */
-.bottom-nav{overflow:hidden;}
-.bottom-nav::after{
+.bottom-nav-fx::after{
   content:'';position:absolute;top:0;bottom:0;left:-60%;width:40%;
   background:linear-gradient(75deg,transparent,rgba(255,255,255,0.10) 45%,rgba(255,255,255,0.16) 50%,rgba(255,255,255,0.10) 55%,transparent);
   pointer-events:none;transform:skewX(-18deg);
   animation:navSweep 7s ease-in-out infinite;
   animation-delay:1.2s;
 }
-[data-theme="light"] .bottom-nav::after,[data-theme="cream"] .bottom-nav::after,[data-theme="ice"] .bottom-nav::after{
+[data-theme="light"] .bottom-nav-fx::after,[data-theme="cream"] .bottom-nav-fx::after,[data-theme="ice"] .bottom-nav-fx::after{
   background:linear-gradient(75deg,transparent,rgba(255,255,255,0.35) 45%,rgba(255,255,255,0.5) 50%,rgba(255,255,255,0.35) 55%,transparent);
 }
 @keyframes navSweep{0%{left:-60%;}18%{left:130%;}100%{left:130%;}}
@@ -2387,6 +2387,7 @@ body.tour-active{overflow:hidden;}
 
 <!-- ═══ BOTTOM NAV ═══ -->
 <nav class="bottom-nav">
+  <span class="bottom-nav-fx" aria-hidden="true"></span>
   <div class="nav-indicator" id="nav-indicator"></div>
   <button class="nav-btn active" id="nav-workout" onclick="switchPage('workout')">
     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M4 12h16"/><rect x="2" y="9" width="3" height="6" rx="1"/><rect x="19" y="9" width="3" height="6" rx="1"/></svg></span>
@@ -11675,10 +11676,19 @@ const COACH_AI_PROMPTS = {
     'عدد وزنه‌ی دقیق رو از داده‌ی داده‌شده استفاده کن، خودت عدد جدید نساز. ایموجی زیاد نذار.',
 
   caption:
-    'تو مربی هوشمند اپ IronLog هستی. برای یک استوری ورزشی که کاربر می‌خواد به‌اشتراک ' +
-    'بذاره، یک کپشن کوتاه (حداکثر یک یا دو جمله‌ی فارسی) بر اساس داده‌ی حرکت بنویس. ' +
-    'لحن رو تصادفی از بین این سه انتخاب کن و در پاسخ فقط با همون یک لحن بنویس: ' +
-    'جدی/تحسین‌آمیز، یا شوخ‌طبع دوستانه، یا حماسی/انگیزشی. کلیشه‌ای یا تکراری ننویس.',
+    'تو مربی هوشمند و باحال اپ IronLog هستی و الان داری کپشنِ استوری اینستاگرام/تلگرام ' +
+    'یه ورزشکار رو می‌نویسی — چیزی که قراره روی عکس تمرینش گذاشته بشه و بقیه ببینن. ' +
+    'دقیقاً یک جمله‌ی کوتاه، پرانرژی و توپ فارسی بنویس (حداکثر ۱۲-۱۴ کلمه) که: ' +
+    '(۱) واقعاً باحال، پرشور و باحس باشه — نه خشک و رسمی و نه شعارِ کلیشه‌ای باشگاهی؛ ' +
+    '(۲) جمله‌بندیش کاملاً درست، روان و طبیعیِ فارسیِ امروزی باشه، بدون غلط دستوری؛ ' +
+    '(۳) مفهومش واضح و قابل‌فهم باشه — یه نفر با یه نگاه بفهمه چی می‌گه، نه انتزاعی و گنگ؛ ' +
+    '(۴) اگه داده‌ای مثل رکورد، وزنه یا روند پیشرفت داده شده، حتماً همون رو با لحن هیجانی و ' +
+    'مفتخرانه توی جمله بیاری، نه یه جمله‌ی جنریک که به هیچ داده‌ای وصل نیست؛ ' +
+    '(۵) مناسب استوری باشه: کوبنده، به‌یادموندنی، قابل نمایش، نه توضیحی و گزارشی. ' +
+    'هر بار لحن رو تصادفی از بین این سه انتخاب کن و فقط با همون یک لحن بنویس: ' +
+    'حماسی/پرقدرت، یا شوخ‌طبع و رگ‌غیرتی، یا مغرور و پیروزمندانه. ' +
+    'هیچ‌وقت کلیشه‌های تکراری («درد امروز قدرت فرداست» و مشابهش) رو دقیقاً تکرار نکن؛ ' +
+    'خودت هر بار یه جمله‌ی تازه و اورجینال بساز. فقط خودِ جمله رو برگردون، بدون گیومه یا توضیح اضافه.',
 };
 
 // ─── کش سبک session-based برای callCoachAI ───
@@ -13040,21 +13050,21 @@ function generateStoryImage(data) {
 // استخر کپشن‌های آفلاین (fallback) — یکجا و مشترک بین همه‌ی مسیرهایی که استوری می‌سازن
 // (قبلاً این آرایه در دو جای مختلف کدنویسی شده بود، الان یکی شد تا از هم جدا نشن).
 const STORY_CAPTION_FALLBACK_POOL = [
-  'درد امروز، قدرت فردا است.',
-  'هیچ ست راحتی هیچ‌وقت کسی رو آهنین نکرد.',
-  'بدن می‌تونه خیلی بیشتر از اونچه ذهن باور داره تحمل کنه.',
-  'قهرمانان دقیقاً وقتی دیگران تسلیم می‌شن، یه ست دیگه می‌زنن.',
-  'نظم برنده است؛ نه انگیزه، نه احساس.',
-  'آنچه امروز تو را به زانو در می‌آورد، فردا زیر پایت خواهد بود.',
-  'آب‌دیده آبدیده می‌شود.',
-  'یک جلسه سنگین، بهتر از صد سال آرزو.',
-  'وقتی دردی به سراغت نیاید، یعنی تمرین نکردی.',
-  'تعطیلی ندارد. تسلیم ندارد. آهن صبور است.',
-  'هر تکرار یه ضربه‌ی دیگر بر کوهِ ضعف.',
-  'نه سخت‌تر از بقیه — سخت‌تر از خودتِ دیروز.',
-  'امروز رو زدی، فرداتو ساختی.',
-  'وزنه دروغ نمی‌گه، تو هم به خودت دروغ نگو.',
-  'یه ست دیگه، یه قدم نزدیک‌تر.',
+  'امروز یه نسخه‌ی قوی‌تر از خودم رو ساختم.',
+  'وزنه بلند شد، بهونه‌ها زمین موندن.',
+  'رکورد امروز، نقطه‌ی شروع فرداست.',
+  'تا جایی رفتم که دیروز فکرشم نمی‌کردم.',
+  'هر ست یه قدم به نسخه‌ی ایده‌آل من.',
+  'بدنم داد می‌زد بسه، من گفتم یکی دیگه.',
+  'این‌جا بود که امروز واقعاً برنده شدم.',
+  'خستگی موقتیه، این پیشرفت موندگاره.',
+  'نه بهانه، نه تعطیلی — فقط زدم.',
+  'یه جلسه‌ی دیگه، یه نسخه‌ی قوی‌تر.',
+  'راحت‌طلبی رو همین‌جا شکست دادم.',
+  'امروز با خودم مسابقه دادم و بردم.',
+  'عرق ریخت، اما غرور موند.',
+  'قدم به قدم دارم می‌سازمش.',
+  'این نتیجه‌ی روزهایی‌ه که کوتاه نیومدم.',
 ];
 function pickStoryCaption() { return pick(STORY_CAPTION_FALLBACK_POOL); }
 
