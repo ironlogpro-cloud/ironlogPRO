@@ -207,14 +207,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     0 4px 14px rgba(0,0,0,0.35);
 }
 .bottom-nav-fx{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0;}
-@property --nav-border-angle{
-  syntax:'<angle>';
-  inherits:false;
-  initial-value:0deg;
-}
 .bottom-nav-fx::before{
   content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;
-  background:conic-gradient(from var(--nav-border-angle) at 50% 50%,transparent 0%,rgba(255,255,255,0.28) 6%,var(--accent) 12%,var(--accent2) 18%,transparent 26%,transparent 100%);
+  background:conic-gradient(from 0deg,transparent 0%,rgba(255,255,255,0.28) 8%,var(--accent) 16%,var(--accent2) 24%,transparent 36%,transparent 100%);
   -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
   -webkit-mask-composite:xor;
   mask-composite:exclude;
@@ -222,9 +217,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   opacity:.85;
   pointer-events:none;
 }
-@keyframes navBorderSpin{to{--nav-border-angle:360deg;}}
+@keyframes navBorderSpin{to{transform:rotate(360deg);}}
 [data-theme="light"] .bottom-nav-fx::before,[data-theme="cream"] .bottom-nav-fx::before,[data-theme="ice"] .bottom-nav-fx::before{
-  background:conic-gradient(from var(--nav-border-angle) at 50% 50%,transparent 0%,rgba(0,0,0,0.12) 6%,var(--accent) 12%,var(--accent2) 18%,transparent 26%,transparent 100%);
+  background:conic-gradient(from 0deg,transparent 0%,rgba(0,0,0,0.12) 8%,var(--accent) 16%,var(--accent2) 24%,transparent 36%,transparent 100%);
   opacity:.6;
 }
 
