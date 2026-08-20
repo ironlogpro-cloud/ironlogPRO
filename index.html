@@ -166,7 +166,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .nav-btn.active{color:var(--accent);}
 .nav-btn.active svg{filter:drop-shadow(0 0 6px var(--accent));}
 .nav-btn.active span{letter-spacing:0.09em;}
-
+.nav-btn.active::before{content:'';position:absolute;top:2px;left:50%;translate:-50% 0;width:4px;height:4px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px 1px var(--accent-glow);animation:navDotIn .3s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes navDotIn{from{opacity:0;transform:scale(0.4) translateY(-3px);}to{opacity:1;transform:scale(1) translateY(0);}}
 .nav-btn.pop svg{animation:none;}
 .nav-btn.pop{transform:none;}
 @keyframes navPop{0%{transform:scale(1) rotate(0);}35%{transform:scale(1.32) rotate(-6deg);}60%{transform:scale(0.92) rotate(3deg);}100%{transform:scale(1) rotate(0);}}
@@ -208,19 +209,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 }
 .bottom-nav-fx{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0;}
 .bottom-nav-fx::before{
-  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;
-  background:conic-gradient(from 0deg,transparent 0%,rgba(255,255,255,0.28) 8%,var(--accent) 16%,var(--accent2) 24%,transparent 36%,transparent 100%);
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  animation:navBorderSpin 4.5s linear infinite;
-  opacity:.85;
+  content:'';position:absolute;top:0;left:14%;right:14%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent);
   pointer-events:none;
 }
-@keyframes navBorderSpin{to{transform:rotate(360deg);}}
 [data-theme="light"] .bottom-nav-fx::before,[data-theme="cream"] .bottom-nav-fx::before,[data-theme="ice"] .bottom-nav-fx::before{
-  background:conic-gradient(from 0deg,transparent 0%,rgba(0,0,0,0.12) 8%,var(--accent) 16%,var(--accent2) 24%,transparent 36%,transparent 100%);
-  opacity:.6;
+  background:linear-gradient(90deg,transparent,rgba(0,0,0,0.10),transparent);
 }
 
 .nav-indicator{
@@ -251,6 +245,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   opacity:1;
 }
 .nav-btn span:last-child{transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s ease,letter-spacing .3s ease;}
+.nav-btn.active::before{top:-3px;}
 .nav-btn.pop .nav-icon{animation:navIconPop .5s cubic-bezier(.34,1.56,.64,1);}
 @keyframes navIconPop{
   0%{transform:translateY(-9px) scale(1);}
@@ -275,6 +270,18 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     0 22px 48px -14px rgba(0,0,0,0.7),
     0 6px 18px -4px var(--accent-glow);
 }
+.bottom-nav-fx::before{
+  left:10%;right:10%;height:1.5px;
+  background:linear-gradient(90deg,transparent,var(--accent) 45%,var(--accent2) 55%,transparent);
+  background-size:220% 100%;
+  animation:navTopShimmer 5s ease-in-out infinite;
+  opacity:.75;
+}
+@keyframes navTopShimmer{0%,100%{background-position:130% 0;}50%{background-position:-30% 0;}}
+[data-theme="light"] .bottom-nav-fx::before,[data-theme="cream"] .bottom-nav-fx::before,[data-theme="ice"] .bottom-nav-fx::before{
+  background:linear-gradient(90deg,transparent,var(--accent) 45%,var(--accent2) 55%,transparent);background-size:220% 100%;opacity:.5;
+}
+
 /* نشانگر پس‌زمینه فعال → یک هاله‌ی نرمِ نورانی زیر آیکون فعال */
 .nav-indicator{
   top:0;height:100%;border:none;background:none;box-shadow:none;
