@@ -181,6 +181,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 #app.session-active #workout-page-header .header-logo-badge{width:24px;height:24px;border-radius:8px;}
 #app.session-active #workout-page-header .header-logo-badge svg{width:13px;height:13px;}
 #app.session-active #workout-page-header #workout-date-text{opacity:0;max-height:0;margin:0;}
+/* حالت فعال جلسه: حذف نام برنامه و رگه تا فقط لوگو + تایمر وسط + دکمه راهنما بمونه — تمیز و متمرکز */
+#app.session-active #workout-page-header .header-name-wrap{display:none;}
+#app.session-active #workout-page-header .header-title-row{gap:0;}
+#app.session-active #workout-page-header > div{gap:0;}
+#app.session-active #workout-page-header .workout-timer-badge{font-size:13px;padding:6px 16px;gap:7px;box-shadow:0 2px 14px rgba(34,197,94,0.22),inset 0 1px 0 rgba(255,255,255,0.12);}
+#app.session-active #workout-page-header .workout-timer-badge svg{width:14px;height:14px;}
+#app.session-active #workout-page-header .page-help-btn{width:28px;height:28px;}
 #app.session-active .toast{bottom:calc(20px + env(safe-area-inset-bottom, 0px));}
 #app.session-active .undo-bar{bottom:calc(20px + env(safe-area-inset-bottom, 0px));}
 .bottom-nav{transition:transform .38s cubic-bezier(.4,0,.2,1),opacity .3s ease,height .38s cubic-bezier(.4,0,.2,1),margin .38s cubic-bezier(.4,0,.2,1);}
@@ -244,6 +251,99 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   35%{transform:translateY(-13px) scale(1.14) rotate(-4deg);}
   65%{transform:translateY(-7px) scale(0.96) rotate(3deg);}
   100%{transform:translateY(-9px) scale(1) rotate(0);}
+}
+
+/* ═══ v5 — FOOTER: ارتقای بصری و تعاملی (نور، شیشه، حرکت) ═══ */
+.bottom-nav{
+  padding:7px 10px;
+  isolation:isolate;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0) 45%),
+    var(--glass-bg);
+  backdrop-filter:var(--blur) saturate(180%);
+  -webkit-backdrop-filter:var(--blur) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 -1px 0 rgba(255,255,255,0.02),
+    0 22px 48px -14px rgba(0,0,0,0.7),
+    0 6px 18px -4px var(--accent-glow);
+}
+.bottom-nav::before{
+  left:10%;right:10%;height:1.5px;
+  background:linear-gradient(90deg,transparent,var(--accent) 45%,var(--accent2) 55%,transparent);
+  background-size:220% 100%;
+  animation:navTopShimmer 5s ease-in-out infinite;
+  opacity:.75;
+}
+@keyframes navTopShimmer{0%,100%{background-position:130% 0;}50%{background-position:-30% 0;}}
+[data-theme="light"] .bottom-nav::before,[data-theme="cream"] .bottom-nav::before,[data-theme="ice"] .bottom-nav::before{
+  background:linear-gradient(90deg,transparent,var(--accent) 45%,var(--accent2) 55%,transparent);background-size:220% 100%;opacity:.5;
+}
+
+/* نشانگر پس‌زمینه فعال → یک هاله‌ی نرمِ نورانی زیر آیکون فعال */
+.nav-indicator{
+  top:0;height:100%;border:none;background:none;box-shadow:none;
+}
+.nav-indicator::after{
+  content:'';position:absolute;left:50%;top:50%;
+  width:52px;height:52px;translate:-50% -50%;
+  border-radius:50%;
+  background:radial-gradient(circle,var(--accent-glow),transparent 70%);
+  filter:blur(6px);
+  opacity:.8;
+  animation:navGlowBreathe 2.6s ease-in-out infinite;
+}
+@keyframes navGlowBreathe{0%,100%{opacity:.55;transform:scale(0.92);}50%{opacity:.9;transform:scale(1.05);}}
+
+.nav-btn{overflow:visible;}
+.nav-btn:not(.active){opacity:.72;transition:opacity .3s ease,transform .35s cubic-bezier(.34,1.56,.64,1);}
+.nav-btn:not(.active):active{opacity:1;}
+
+/* موج لمسی (ripple) هنگام فشردن هر تب */
+.nav-btn::after{
+  content:'';position:absolute;left:50%;top:50%;width:8px;height:8px;
+  translate:-50% -50%;border-radius:50%;
+  background:var(--accent);opacity:0;pointer-events:none;
+}
+.nav-btn:active::after{animation:navRipple .55s ease-out;}
+@keyframes navRipple{
+  0%{opacity:.45;width:8px;height:8px;}
+  100%{opacity:0;width:64px;height:64px;}
+}
+
+.nav-icon{
+  width:36px;height:36px;border-radius:15px;
+}
+/* حلقه‌ی نورانیِ چرخان دور آیکون فعال */
+.nav-icon::before{
+  content:'';position:absolute;inset:-3px;border-radius:18px;
+  padding:1.5px;
+  background:conic-gradient(from 0deg,var(--accent),var(--accent2),transparent 40%,transparent 60%,var(--accent));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:0;transition:opacity .35s ease;
+  animation:navRingSpin 3.2s linear infinite;
+}
+.nav-btn.active .nav-icon::before{opacity:.9;}
+@keyframes navRingSpin{to{transform:rotate(360deg);}}
+
+.nav-btn.active .nav-icon{
+  background:linear-gradient(150deg,var(--accent),var(--accent2) 120%);
+  background-size:160% 160%;
+  animation:navGradientDrift 3.5s ease-in-out infinite;
+  box-shadow:
+    0 10px 22px -5px var(--accent-glow),
+    0 3px 8px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.32),
+    inset 0 -3px 6px rgba(0,0,0,0.15);
+}
+@keyframes navGradientDrift{0%,100%{background-position:0% 0%;}50%{background-position:100% 100%;}}
+
+.nav-btn.active span:last-child{
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  font-weight:800;
 }
 
 .card{background:var(--glass-card);border:1px solid var(--glass-border);border-radius:var(--radius);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden;transition:var(--transition);box-shadow:var(--shadow-sm);position:relative;isolation:isolate;}
@@ -1559,15 +1659,13 @@ body.tour-active{overflow:hidden;}
           <p id="workout-date-text"></p>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div id="workout-session-timer" style="display:none;" class="workout-timer-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span id="session-timer-display">00:00</span>
-        </div>
-        <button class="page-help-btn" id="home-help-btn" onclick="TourEngine.start('home')" title="راهنمای این صفحه">
-          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" fill="url(#hbg)" opacity="0.18"/><path d="M9.3 9.4a2.8 2.8 0 015.4.9c0 1.7-1.6 2.1-2.3 2.9-.35.4-.5.8-.5 1.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="17.1" r="1.15" fill="currentColor"/><defs><linearGradient id="hbg" x1="0" y1="0" x2="24" y2="24"><stop offset="0" stop-color="var(--accent2)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs></svg>
-        </button>
+      <div id="workout-session-timer" style="display:none;" class="workout-timer-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span id="session-timer-display">00:00</span>
       </div>
+      <button class="page-help-btn" id="home-help-btn" onclick="TourEngine.start('home')" title="راهنمای این صفحه">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" fill="url(#hbg)" opacity="0.18"/><path d="M9.3 9.4a2.8 2.8 0 015.4.9c0 1.7-1.6 2.1-2.3 2.9-.35.4-.5.8-.5 1.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="17.1" r="1.15" fill="currentColor"/><defs><linearGradient id="hbg" x1="0" y1="0" x2="24" y2="24"><stop offset="0" stop-color="var(--accent2)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs></svg>
+      </button>
     </div>
   </div>
   <div id="day-selector-view">
@@ -1636,6 +1734,22 @@ body.tour-active{overflow:hidden;}
 
   <div id="weekly-summary-card" data-tour="stats-weeklysummary"></div>
 
+  <div class="sec-title">وزن بدن</div>
+  <div style="padding:0 16px;" data-tour="stats-bodyweight">
+    <div class="chart-container">
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <input type="number" class="input-field" id="weight-input" placeholder="وزن (kg)" step="0.1" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addWeight()">ثبت</button>
+      </div>
+      <!-- آمار خلاصه وزن (باگ ۲۱) -->
+      <div id="weight-summary" style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;"></div>
+      <!-- فیلتر بازه زمانی نمودار (باگ ۱۹) -->
+      <div id="weight-range-filter" style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;"></div>
+      <svg class="mini-chart" id="weight-chart"></svg>
+    </div>
+    <div class="section-card" style="margin:0 0 12px;"><div id="weight-log"></div><div id="weight-load-more" style="text-align:center;padding:8px 0;display:none;"><button class="btn btn-ghost btn-sm" onclick="weightLogShowMore()">نمایش بیشتر ↓</button></div></div>
+  </div>
+
   <div id="coach-weekly-narrative"></div>
 
   <div class="sec-title">نقشه تداوم</div>
@@ -1662,21 +1776,6 @@ body.tour-active{overflow:hidden;}
     <div class="muscle-bars" id="muscle-map"></div>
   </div>
 
-  <div class="sec-title">وزن بدن</div>
-  <div style="padding:0 16px;" data-tour="stats-bodyweight">
-    <div class="chart-container">
-      <div style="display:flex;gap:10px;margin-bottom:12px;">
-        <input type="number" class="input-field" id="weight-input" placeholder="وزن (kg)" step="0.1" style="flex:1;">
-        <button class="btn btn-primary btn-sm" onclick="addWeight()">ثبت</button>
-      </div>
-      <!-- آمار خلاصه وزن (باگ ۲۱) -->
-      <div id="weight-summary" style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;"></div>
-      <!-- فیلتر بازه زمانی نمودار (باگ ۱۹) -->
-      <div id="weight-range-filter" style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;"></div>
-      <svg class="mini-chart" id="weight-chart"></svg>
-    </div>
-    <div class="section-card" style="margin:0 0 12px;"><div id="weight-log"></div><div id="weight-load-more" style="text-align:center;padding:8px 0;display:none;"><button class="btn btn-ghost btn-sm" onclick="weightLogShowMore()">نمایش بیشتر ↓</button></div></div>
-  </div>
   <div class="sec-title">رکورد حرکات</div>
   <div style="padding:0 16px;margin-bottom:4px;" data-tour="stats-exchart">
     <div class="chart-container">
@@ -2335,7 +2434,7 @@ body.tour-active{overflow:hidden;}
 <div class="modal-overlay" id="quick-ask-modal" role="dialog" aria-modal="true" aria-label="سؤال سریع از مربی">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title"><span class="modal-title-icon">${ICONS.chat}</span>سؤال سریع از مربی</div>
+    <div class="modal-title"><span class="modal-title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12.2c0-4.6 3.9-8.3 8.7-8.3s8.7 3.7 8.7 8.3-3.9 8.3-8.7 8.3c-1.1 0-2.2-.2-3.1-.55L4 21.5l1.2-3.6a7.9 7.9 0 01-1.7-5.7z" stroke-linejoin="round"/></svg></span>سؤال سریع از مربی</div>
     <div class="quick-ask-context" id="quick-ask-context"></div>
     <div class="quick-ask-chips" id="quick-ask-chips">
       <button class="quick-ask-chip" onclick="sendQuickAskChip('درد دارم، ادامه بدم؟')">درد دارم، ادامه بدم؟</button>
@@ -2344,7 +2443,7 @@ body.tour-active{overflow:hidden;}
     </div>
     <div class="quick-ask-inputrow">
       <input type="text" id="quick-ask-input" class="coach-ai-input" placeholder="یا سؤال خودت رو تایپ کن…" onkeydown="if(event.key==='Enter')submitQuickAsk()">
-      <button class="coach-ai-send-btn" id="quick-ask-send-btn" onclick="submitQuickAsk()">${icon('flame',15)}</button>
+      <button class="coach-ai-send-btn" id="quick-ask-send-btn" onclick="submitQuickAsk()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5a2.5 2.5 0 002.5-2.5c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 002.5 2.5z"/></svg></button>
     </div>
     <div class="quick-ask-answer" id="quick-ask-answer"></div>
     <div class="ai-remaining-note" id="quick-ask-remaining"></div>
@@ -2360,7 +2459,8 @@ body.tour-active{overflow:hidden;}
     <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
       <div>
         <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">نام حرکت *</div>
-        <input type="text" class="input-field" id="aem-name" placeholder="مثلاً: پرس سینه">
+        <input type="text" class="input-field" id="aem-name" placeholder="مثلاً: پرس سینه" onblur="onAemNameBlur()">
+        <div id="aem-ai-status" style="font-size:10px;color:var(--accent);margin-top:4px;display:none;"></div>
       </div>
       <div style="display:flex;gap:10px;">
         <div style="flex:1;">
@@ -2379,6 +2479,17 @@ body.tour-active{overflow:hidden;}
           <button type="button" class="ex-chip" data-cat="heavy" onclick="selectAemCategory('heavy')" style="flex:1;text-align:center;">سنگین</button>
           <button type="button" class="ex-chip" data-cat="medium" onclick="selectAemCategory('medium')" style="flex:1;text-align:center;">متوسط</button>
           <button type="button" class="ex-chip" data-cat="light" onclick="selectAemCategory('light')" style="flex:1;text-align:center;">سبک</button>
+        </div>
+      </div>
+      <!-- انتخاب نوع تجهیزات — برای محاسبه‌ی دقیق‌تر پله‌ی افزایش وزن -->
+      <div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">نوع تجهیزات</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="aem-equipment-chips">
+          <button type="button" class="ex-chip" data-eq="دمبل" onclick="selectAemEquipment('دمبل')">دمبل</button>
+          <button type="button" class="ex-chip" data-eq="هالتر" onclick="selectAemEquipment('هالتر')">هالتر</button>
+          <button type="button" class="ex-chip" data-eq="سیم‌کش" onclick="selectAemEquipment('سیم‌کش')">سیم‌کش</button>
+          <button type="button" class="ex-chip" data-eq="دستگاه" onclick="selectAemEquipment('دستگاه')">دستگاه</button>
+          <button type="button" class="ex-chip" data-eq="وزن بدن" onclick="selectAemEquipment('وزن بدن')">وزن بدن</button>
         </div>
       </div>
       <!-- انتخاب گروه عضلانی (بخش جمع‌شونده) -->
@@ -4765,7 +4876,43 @@ function getSuggestion(exId) {
   if (!done.length) return null;
   const maxW = Math.max(...done.map(s=>parseFloat(s.weight)||0));
   if (!maxW) return null;
-  return Math.round((maxW*1.025)/2.5)*2.5;
+  const ex = findExerciseById(exId);
+  const step = getWeightIncrement(ex);
+  return Math.round((maxW+step)/step)*step;
+}
+
+// پله‌ی افزایش وزن بر اساس نوع تجهیزات (کلید = مقدار فیلد ex.equipment)
+const EQUIPMENT_WEIGHT_STEP = {
+  'دمبل': 2.5,
+  'هالتر': 5,
+  'سیم‌کش': 7,
+  'دستگاه': 2.5,
+  'وزن بدن': 2.5,
+};
+// fallback: تشخیص نوع تجهیزات از روی متن اسم حرکت (برای حرکات قدیمی که فیلد equipment ندارن)
+function matchEquipment(name) {
+  const n = String(name||'');
+  if (/دمبل/.test(n)) return 'دمبل';
+  if (/هالتر|باربل/.test(n)) return 'هالتر';
+  if (/سیم.?کش|کراس|پولی|کِیبل|کیبل/.test(n)) return 'سیم‌کش';
+  return null;
+}
+// تشخیص نوع تجهیزات و برگردوندن پله‌ی درست افزایش وزن:
+// دمبل: هر دمبل ۲.۵ کیلو سنگین‌تر میشه → پله = ۲.۵
+// هالتر: صفحه‌ها ۲.۵ کیلویی‌ان ولی دو طرف هالتر باید عوض بشه → پله = ۵
+// سیم‌کش/کراس/پولی: پین‌های وزنه معمولاً با فاصله‌ی ۷ کیلو → پله = ۷
+// اولویت با فیلد صریح ex.equipment (انتخاب کاربر یا تشخیص AI)، سپس fallback به تطبیق اسم
+function getWeightIncrement(exOrName) {
+  const ex = (exOrName && typeof exOrName === 'object') ? exOrName : null;
+  const equipment = ex?.equipment || matchEquipment(ex ? ex.name : exOrName);
+  return EQUIPMENT_WEIGHT_STEP[equipment] ?? 2.5; // پیش‌فرض برای دستگاه‌ها و مواردی که نوع تجهیزات مشخص نیست
+}
+function findExerciseById(exId) {
+  for (const day of appData.days) {
+    const ex = day.exercises.find(e=>e.id===exId);
+    if (ex) return ex;
+  }
+  return null;
 }
 
 // ═══════════════════════════════════════════════════
@@ -6024,8 +6171,11 @@ function renderVolumeList() {
 function calc1RM(weight,reps) {
   if (!weight||!reps||reps<1) return 0;
   if (reps===1) return Math.round(weight);
-  // Epley — reps بالای 12 دقت کمی دارد؛ سقف نرم 12
-  const r = Math.min(Number(reps)||0, 12);
+  // Epley — سقف قبلی (۱۲) حذف شد چون باعث می‌شد تکرارهای بالای ۱۲ نادیده گرفته بشن
+  // (مثلاً ۵۹کیلو×۲۰تکرار در مقابل ۶۰کیلو×۱۲تکرار اشتباهاً «پسرفت» نشون داده می‌شد).
+  // سقف نرم روی ۳۰ نگه داشته شده چون فرمول Epley در تکرارهای خیلی بالا (>۳۰) دقتش
+  // به‌شدت افت می‌کنه و دیگه نماینده‌ی خوبی برای قدرت واقعی نیست.
+  const r = Math.min(Number(reps)||0, 30);
   return Math.round(weight*(1+r/30));
 }
 
@@ -6360,6 +6510,7 @@ function editExercise(dayId, exId) {
   document.getElementById('aem-reps').value = ex.reps || '10-12';
   _aemMuscle = Array.isArray(ex.muscles) ? [...ex.muscles] : (ex.muscle ? [ex.muscle] : []);
   selectAemCategory(ex.category || 'medium');
+  _aemEquipment = ex.equipment || ''; setAemEquipmentUI();
   _aemPain = !!ex.pain; setAemPainUI();
   buildMusclePickerGrid(_aemMuscle);
   updateMuscleSummary();
@@ -6397,6 +6548,18 @@ let _editExId = null;
 let _aemCategory = 'medium';
 let _aemMuscle = []; // آرایه‌ی گروه‌های عضلانی انتخاب‌شده توسط کاربر
 let _aemPain = false; // پرچم درد/ناراحتی برای این حرکت
+let _aemEquipment = ''; // نوع تجهیزات انتخاب‌شده (دستی یا توسط AI)
+
+// انتخاب دستی نوع تجهیزات — کاربر همیشه می‌تونه پیشنهاد AI رو بازنویسی کنه
+function selectAemEquipment(eq) {
+  _aemEquipment = (_aemEquipment === eq) ? '' : eq; // کلیک دوباره = لغو انتخاب
+  setAemEquipmentUI();
+}
+function setAemEquipmentUI() {
+  document.querySelectorAll('#aem-equipment-chips .ex-chip').forEach(b=>{
+    b.classList.toggle('active', b.dataset.eq===_aemEquipment);
+  });
+}
 
 // FIX: بدون این تابع، دسته‌ی حرکت هیچ‌وقت قابل انتخاب نبود و همیشه «متوسط» ثبت می‌شد،
 // در نتیجه زمان استراحت سنگین/سبک در تنظیمات، عملاً برای هیچ حرکتی به کار نمی‌رفت
@@ -6458,9 +6621,11 @@ function addExercise(dayId) {
   document.getElementById('aem-reps').value = '10-12';
   document.getElementById('aem-superset-name').value = '';
   selectAemCategory('medium');
+  _aemEquipment = ''; setAemEquipmentUI();
   _aemPain = false; setAemPainUI();
   buildMusclePickerGrid([]);
   updateMuscleSummary();
+  const aiStatusEl = document.getElementById('aem-ai-status'); if (aiStatusEl) { aiStatusEl.style.display='none'; aiStatusEl.textContent=''; }
   // بخش عضلات باز باشد در حالت افزودن
   const mc1 = document.getElementById('aem-muscle-collapse'); if (mc1) mc1.classList.add('open');
   // ریست تاگل سوپرست
@@ -6513,7 +6678,7 @@ function confirmAddExModal() {
     const ex = day.exercises.find(e => e.id === _editExId);
     if (!ex) { closeAddExModal(); return; }
     if (_aemMuscle.length === 0) { showToast('گروه عضلانی را انتخاب کنید','error'); return; }
-    ex.name = name; ex.sets = sets; ex.reps = reps; ex.superset = ssName || null; ex.category = _aemCategory; ex.muscles = [..._aemMuscle]; ex.pain = _aemPain; delete ex.muscle;
+    ex.name = name; ex.sets = sets; ex.reps = reps; ex.superset = ssName || null; ex.category = _aemCategory; ex.muscles = [..._aemMuscle]; ex.equipment = _aemEquipment || null; ex.pain = _aemPain; delete ex.muscle;
     if (currentDayId === _addExDayId && currentSession[ex.id]) {
       const sess = currentSession[ex.id];
       while (sess.sets.length < sets) sess.sets.push({weight:'',reps:'',dropSet:false,done:false,rir:''});
@@ -6539,12 +6704,93 @@ function confirmAddExModal() {
     sets,
     category: _aemCategory,
     muscles: [..._aemMuscle],
+    equipment: _aemEquipment || null,
     superset: ssName || null,
     pain: _aemPain
   });
   saveData(); renderSettings(); closeAddExModal();
   showToast('حرکت اضافه شد','success');
 }
+
+// ═══════════════════════════════════════════════════
+//  تشخیص خودکار حرکت با AI (گروه عضلانی + سختی + نوع تجهیزات)
+// ═══════════════════════════════════════════════════
+// وقتی کاربر از کادر «نام حرکت» خارج می‌شه (blur)، اگه مربی AI فعاله و سقف روزانه رد
+// نشده، اسم حرکت به AI داده می‌شه تا سه چیز رو حدس بزنه: گروه(های) عضلانی، سطح سختی
+// (سنگین/متوسط/سبک) و نوع تجهیزات. نتیجه به‌صورت خودکار روی چیپ‌ها/گرید اعمال می‌شه،
+// ولی کاربر همیشه می‌تونه بعدش دستی تغییرش بده — AI فقط پیشنهاد اولیه می‌ده.
+const AEM_EQUIPMENT_KEYS = ['دمبل','هالتر','سیم‌کش','دستگاه','وزن بدن'];
+let _aemAILastName = ''; // جلوگیری از تحلیل تکراری وقتی اسم عوض نشده
+let _aemAIRequestSeq = 0; // جلوگیری از رِیس‌کاندیشن بین چند بار پشت‌سرهم blur شدن
+
+function _setAemAIStatus(text) {
+  const el = document.getElementById('aem-ai-status');
+  if (!el) return;
+  if (!text) { el.style.display = 'none'; el.textContent = ''; return; }
+  el.style.display = 'block';
+  el.textContent = text;
+}
+
+async function onAemNameBlur() {
+  const nameEl = document.getElementById('aem-name');
+  const name = nameEl ? nameEl.value.trim() : '';
+  if (!name || name.length < 2) return;
+  if (name === _aemAILastName) return; // اسم عوض نشده، دوباره تحلیل نکن
+  if (!appData.settings.coachEnabled || appData.settings.coachMode !== 'ai') return; // فقط در حالت مربی هوشمند
+  // توجه: این تحلیل جزو سقف روزانه‌ی ۲۰ پیام AI حساب نمی‌شه — نه canMakeAIRequest چک می‌شه، نه recordAIRequestUsed صدا زده می‌شه.
+
+  _aemAILastName = name;
+  const mySeq = ++_aemAIRequestSeq;
+  _setAemAIStatus('🤖 هوش مصنوعی در حال بررسی حرکت…');
+
+  try {
+    const muscleKeys = MUSCLE_GROUPS.map(m => m.key).join('، ');
+    const systemPrompt =
+      'تو یه دستیار طبقه‌بندی حرکات بدنسازی هستی. فقط و فقط یک شیء JSON خام برگردون، ' +
+      'بدون هیچ توضیح اضافه، بدون Markdown، بدون بک‌تیک.\n' +
+      'ساختار دقیق خروجی:\n' +
+      '{"muscles": [...], "category": "...", "equipment": "..."}\n\n' +
+      'muscles: آرایه‌ای از یک یا چند مورد، فقط از این لیست دقیق انتخاب کن: ' + muscleKeys + '\n' +
+      'category: دقیقاً یکی از "heavy" یا "medium" یا "light" (سنگین/متوسط/سبک بر اساس معمولاً چقدر وزنه سنگین و پرتنش‌ه این حرکت).\n' +
+      'equipment: دقیقاً یکی از این مقادیر: ' + AEM_EQUIPMENT_KEYS.join('، ') + '\n' +
+      'اگه نام حرکت نامفهومه یا حرکت بدنسازی شناخته‌شده‌ای نیست، بهترین حدس منطقی رو بزن، هیچ‌وقت فیلد خالی نذار.';
+
+    const raw = await callAIRaw('نام حرکت: «' + name + '»', systemPrompt, 150, null);
+    if (mySeq !== _aemAIRequestSeq) return; // یه blur جدیدتر اتفاق افتاده، این جواب رو دور بریز
+    // عمداً recordAIRequestUsed() صدا زده نمی‌شه — این قابلیت خارج از سقف روزانه‌ی چت/تحلیل AI حساب می‌شه.
+
+    const cleaned = (raw || '').replace(/```json|```/g, '').trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('پاسخ AI فرمت JSON نداشت');
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    // اعمال گروه عضلانی پیشنهادی — فقط مقادیر معتبر از لیست رسمی
+    if (Array.isArray(parsed.muscles)) {
+      const validMuscles = parsed.muscles.filter(m => MUSCLE_GROUPS.some(g => g.key === m));
+      if (validMuscles.length) {
+        _aemMuscle = validMuscles;
+        buildMusclePickerGrid(_aemMuscle);
+        updateMuscleSummary();
+      }
+    }
+    // اعمال سطح سختی پیشنهادی
+    if (['heavy','medium','light'].includes(parsed.category)) {
+      selectAemCategory(parsed.category);
+    }
+    // اعمال نوع تجهیزات پیشنهادی
+    if (AEM_EQUIPMENT_KEYS.includes(parsed.equipment)) {
+      _aemEquipment = parsed.equipment;
+      setAemEquipmentUI();
+    }
+    _setAemAIStatus('✓ پیشنهاد AI اعمال شد — در صورت نیاز دستی تغییر بده');
+    setTimeout(()=>_setAemAIStatus(''), 2500);
+  } catch (e) {
+    if (mySeq !== _aemAIRequestSeq) return;
+    console.error('onAemNameBlur AI error:', e);
+    _setAemAIStatus('');
+  }
+}
+
 function showAddDayModal() {
   showInputModal('نام روز تمرین جدید','',val=>{
     if(!val?.trim())return;
@@ -7662,7 +7908,10 @@ function analyzePerformance() {
       // پیشنهاد افزایش وزن: روند e1RM واقعاً صعوده (نه فقط آخرین جلسه کامل بوده) + جلسه‌ی آخر کامل
       if (lastComplete && relSlope >= 0.015) {
         const maxW = Math.max(...(last.raw.sets||[]).filter(s=>s.done&&s.weight).map(s=>parseFloat(s.weight)||0));
-        if (maxW > 0) suggestions.push({ex: ex.name, w: maxW, newW: Math.round((maxW+2.5)*10)/10, confidence: relSlope});
+        if (maxW > 0) {
+          const step = getWeightIncrement(ex);
+          suggestions.push({ex: ex.name, w: maxW, newW: Math.round((maxW+step)*10)/10, confidence: relSlope});
+        }
       }
 
       // تشخیص خستگی: روند e1RM واقعاً نزولیه در چند جلسه‌ی اخیر (نه فقط یه جلسه‌ی ضعیف تصادفی)
