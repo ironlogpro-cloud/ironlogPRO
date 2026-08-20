@@ -1251,6 +1251,20 @@ body, .page, .card, .day-card, .settings-icon, .stat-card { transition: backgrou
   overflow:hidden;
   backdrop-filter:blur(10px);
   box-shadow:var(--shadow-sm);
+  transition:transform .38s cubic-bezier(.22,1,.36,1),opacity .3s ease,background .3s ease,border-color .3s ease,box-shadow .38s ease;
+  transform-origin:center top;
+  position:relative;
+}
+.settings-acc.open{
+  background:linear-gradient(180deg,var(--accent-soft),var(--glass-card) 55%);
+  border-color:var(--accent-soft);
+  box-shadow:0 14px 32px -14px var(--accent-glow),0 4px 14px rgba(0,0,0,0.28);
+  transform:scale(1.018);
+  z-index:2;
+}
+#page-settings.acc-focused .settings-acc:not(.open){
+  opacity:.5;
+  transform:scale(0.965);
 }
 .settings-acc-head{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -1293,7 +1307,7 @@ body, .page, .card, .day-card, .settings-icon, .stat-card { transition: backgrou
 .settings-acc-extra{padding:0 0 10px;}
 .settings-acc-extra .btn{margin:0 16px;}
 @media (prefers-reduced-motion: reduce){
-  .settings-acc-body,.settings-acc-chev{transition:none !important;}
+  .settings-acc-body,.settings-acc-chev,.settings-acc{transition:none !important;}
 }
 
 /* ═══ reduced motion ═══ */
@@ -6320,31 +6334,43 @@ function toggleSettingsAcc(btn) {
   const acc = btn && btn.closest ? btn.closest('.settings-acc') : null;
   if (!acc) return;
   const willOpen = !acc.classList.contains('open');
+  const page = document.getElementById('page-settings');
+  const st = getSettingsAccState();
+  // فقط یک آکاردئون در آن واحد باز باشد — بقیه خودکار بسته می‌شوند
+  if (willOpen && page) {
+    page.querySelectorAll('.settings-acc.open').forEach(other => {
+      if (other === acc) return;
+      other.classList.remove('open');
+      const otherHead = other.querySelector('.settings-acc-head');
+      if (otherHead) otherHead.setAttribute('aria-expanded', 'false');
+      const otherKey = other.getAttribute('data-acc');
+      if (otherKey) st[otherKey] = false;
+    });
+  }
   acc.classList.toggle('open', willOpen);
   btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  if (page) page.classList.toggle('acc-focused', willOpen);
   const key = acc.getAttribute('data-acc');
-  if (key) {
-    const st = getSettingsAccState();
-    st[key] = willOpen;
-    setSettingsAccState(st);
-  }
+  if (key) st[key] = willOpen;
+  setSettingsAccState(st);
 }
 function restoreSettingsAccState() {
   const st = getSettingsAccState();
+  const page = document.getElementById('page-settings');
+  let openKey = null;
   document.querySelectorAll('#page-settings .settings-acc[data-acc]').forEach(acc => {
     const key = acc.getAttribute('data-acc');
     if (!key) return;
     // اگر قبلاً ذخیره شده، از آن استفاده کن؛ وگرنه open اولیه HTML
-    if (Object.prototype.hasOwnProperty.call(st, key)) {
-      const open = !!st[key];
-      acc.classList.toggle('open', open);
-      const head = acc.querySelector('.settings-acc-head');
-      if (head) head.setAttribute('aria-expanded', open ? 'true' : 'false');
-    } else {
-      const head = acc.querySelector('.settings-acc-head');
-      if (head) head.setAttribute('aria-expanded', acc.classList.contains('open') ? 'true' : 'false');
-    }
+    const isOpen = Object.prototype.hasOwnProperty.call(st, key) ? !!st[key] : acc.classList.contains('open');
+    // فقط اولین آکاردئونِ باز را نگه دار — بقیه بسته می‌شوند (تک‌بازشو)
+    const finalOpen = isOpen && !openKey;
+    if (finalOpen) openKey = key;
+    acc.classList.toggle('open', finalOpen);
+    const head = acc.querySelector('.settings-acc-head');
+    if (head) head.setAttribute('aria-expanded', finalOpen ? 'true' : 'false');
   });
+  if (page) page.classList.toggle('acc-focused', !!openKey);
 }
 function applySettingsAccIcons() {
   const map = {
