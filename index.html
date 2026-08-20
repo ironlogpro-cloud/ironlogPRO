@@ -765,6 +765,7 @@ body.log-only-mode::before{
 .exercise-editor-name{flex:1;font-size:12px;color:var(--text2);}
 .exercise-editor-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;}
 .exercise-drag-handle{background:none;border:none;color:var(--text3);cursor:grab;width:26px;height:26px;flex:none;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;touch-action:none;transition:color .15s,background .15s;}
+#exercise-manager-drag-hint svg{width:11px;height:11px;flex:none;}
 .exercise-drag-handle svg{width:17px;height:17px;}
 .exercise-drag-handle:active{cursor:grabbing;color:var(--accent);background:var(--accent-soft);}
 .exercise-editor-item.exercise-dragging{box-shadow:0 10px 28px rgba(0,0,0,0.35),0 0 0 1.5px var(--accent);background:var(--card,var(--glass2));border-radius:12px;opacity:0.97;}
@@ -1878,8 +1879,8 @@ body.tour-active{overflow:hidden;}
     </div>
   </div>
 
-  <div class="settings-acc open" data-acc="appearance" data-tour="settings-appearance">
-    <button type="button" class="settings-acc-head" onclick="toggleSettingsAcc(this)" aria-expanded="true">
+  <div class="settings-acc" data-acc="appearance" data-tour="settings-appearance">
+    <button type="button" class="settings-acc-head" onclick="toggleSettingsAcc(this)" aria-expanded="false">
       <div class="settings-acc-head-l">
         <div class="settings-acc-ico" id="acc-ico-appearance"></div>
         <div>
@@ -1929,11 +1930,6 @@ body.tour-active{overflow:hidden;}
           <div class="settings-action"><div class="toggle" id="toggle-rpe" onclick="toggleSetting('askRPE',this)"></div></div>
         </div>
         <div class="settings-row">
-          <div class="settings-icon" id="si-volume"></div>
-          <div class="settings-info"><div class="settings-label">صدای پس‌زمینه هنگام استراحت</div><div class="settings-sub">کمک به پخش هشدار پایان استراحت حین قفل بودن صفحه — مصرف باتری بیشتر؛ ویبره روی iOS همچنان کار نمی‌کند</div></div>
-          <div class="settings-action"><div class="toggle" id="toggle-keepalive" onclick="toggleSetting('keepAliveAudio',this)"></div></div>
-        </div>
-        <div class="settings-row">
           <div class="settings-icon" id="si-logonly"></div>
           <div class="settings-info"><div class="settings-label">حالت فقط‌لاگ</div><div class="settings-sub">حذف مربی، پیشنهادها، کانفتی و انیمیشن‌های تزئینی — فقط ثبت سریع ست</div></div>
           <div class="settings-action"><div class="toggle" id="toggle-logonly" onclick="toggleSetting('logOnlyMode',this)"></div></div>
@@ -1965,23 +1961,8 @@ body.tour-active{overflow:hidden;}
           <div class="settings-info"><div class="settings-label">اسم شما</div><div class="settings-sub">برای سلام شخصی در بالای صفحه</div></div>
           <div class="settings-action"><button class="btn btn-ghost btn-sm" onclick="editCoachName()">تغییر</button></div>
         </div>
-        <div class="settings-row">
-          <div class="settings-icon" id="si-coach-snooze"></div>
-          <div class="settings-info"><div class="settings-label">سکوت موقت</div><div class="settings-sub" id="coach-snooze-status">مصدومیت، مسافرت یا هر دلیل موجه — مربی رو موقتاً ساکت کن</div></div>
-          <div class="settings-action"><button class="btn btn-ghost btn-sm" onclick="openModal('coach-snooze-modal')">تنظیم</button></div>
-        </div>
-        <div class="settings-row">
-          <div class="settings-icon" id="si-coach-categories"></div>
-          <div class="settings-info"><div class="settings-label">دسته‌بندی پیام‌ها</div><div class="settings-sub">هر نوع پیام رو جدا خاموش/روشن کن</div></div>
-          <div class="settings-action"><button class="btn btn-ghost btn-sm" onclick="openCoachCategoriesModal()">تنظیم</button></div>
-        </div>
-        <div class="settings-row">
-          <div class="settings-icon" id="si-coach-push"></div>
-          <div class="settings-info"><div class="settings-label">اعلان یادآوری غیبت</div><div class="settings-sub">وقتی چند روز نیومدی، حتی اگه اپ رو باز نکرده باشی، سعی می‌کنه یادآوری بفرسته (بسته به مرورگر/گوشی)</div></div>
-          <div class="settings-action"><div class="toggle" id="toggle-coach-push" onclick="toggleCoachPush(this)"></div></div>
-        </div>
         <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:8px;">
-          <div class="settings-info"><div class="settings-label">حالت مربی</div><div class="settings-sub">آفلاین: قالبی، سریع و رایگان، بدون اینترنت. AI: پاسخ‌های واقعی و شخصی‌سازی‌شده بر اساس همین اطلاعات پایین همین صفحه</div></div>
+          <div class="settings-info"><div class="settings-label">حالت مربی</div><div class="settings-sub">آفلاین: قالبی و بدون اینترنت. AI: پاسخ‌های شخصی‌سازی‌شده، نیاز به اینترنت دارد.</div></div>
           <div style="display:flex;gap:8px;">
             <button class="coachmode-btn" data-coachmode="offline" onclick="selectCoachMode('offline',this)">
               <span class="bgmode-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 4 14 12 14 11 22 20 10 12 10 13 2"/></svg></span>
@@ -1994,7 +1975,7 @@ body.tour-active{overflow:hidden;}
               <span class="bgmode-btn-sub">شخصی‌سازی‌شده</span>
             </button>
           </div>
-          <div style="font-size:10.5px;color:var(--text3);line-height:1.7;">تو حالت AI می‌تونی سؤال آزاد هم از مربی بپرسی؛ نیاز به اینترنت داره و اگه وصل نشه، خودکار به آفلاین برمی‌گرده.</div>
+          <div style="font-size:10.5px;color:var(--text3);line-height:1.7;">تو حالت AI می‌تونی سؤال آزاد هم بپرسی؛ بدون اینترنت خودکار به آفلاین برمی‌گرده.</div>
         </div>
         <div class="settings-row">
           <div class="settings-icon" id="si-ai-goals"></div>
@@ -2014,6 +1995,43 @@ body.tour-active{overflow:hidden;}
         <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:6px;">
           <div class="settings-info"><div class="settings-label">تحلیل مربی از الگوی تمرینت</div></div>
           <div id="ai-profile-summary-box" style="font-size:12px;line-height:1.8;padding:2px 0;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-acc" data-acc="advanced">
+    <button type="button" class="settings-acc-head" onclick="toggleSettingsAcc(this)" aria-expanded="false">
+      <div class="settings-acc-head-l">
+        <div class="settings-acc-ico" id="acc-ico-advanced"></div>
+        <div>
+          <div class="settings-acc-title">تنظیمات پیشرفته</div>
+          <div class="settings-acc-sub">سکوت مربی، دسته‌بندی پیام‌ها و اعلان‌ها</div>
+        </div>
+      </div>
+      <svg class="settings-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <div class="settings-acc-body">
+      <div class="settings-section">
+        <div class="settings-row">
+          <div class="settings-icon" id="si-coach-snooze"></div>
+          <div class="settings-info"><div class="settings-label">سکوت موقت مربی</div><div class="settings-sub" id="coach-snooze-status">مصدومیت، مسافرت یا هر دلیل موجه</div></div>
+          <div class="settings-action"><button class="btn btn-ghost btn-sm" onclick="openModal('coach-snooze-modal')">تنظیم</button></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-icon" id="si-coach-categories"></div>
+          <div class="settings-info"><div class="settings-label">دسته‌بندی پیام‌های مربی</div><div class="settings-sub">هر نوع پیام رو جدا خاموش/روشن کن</div></div>
+          <div class="settings-action"><button class="btn btn-ghost btn-sm" onclick="openCoachCategoriesModal()">تنظیم</button></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-icon" id="si-coach-push"></div>
+          <div class="settings-info"><div class="settings-label">اعلان یادآوری غیبت</div><div class="settings-sub">یادآوری وقتی چند روز نیومدی</div></div>
+          <div class="settings-action"><div class="toggle" id="toggle-coach-push" onclick="toggleCoachPush(this)"></div></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-icon" id="si-volume"></div>
+          <div class="settings-info"><div class="settings-label">صدای پس‌زمینه هنگام استراحت</div><div class="settings-sub">پخش هشدار پایان استراحت حین قفل صفحه — باتری بیشتر مصرف می‌کند</div></div>
+          <div class="settings-action"><div class="toggle" id="toggle-keepalive" onclick="toggleSetting('keepAliveAudio',this)"></div></div>
         </div>
       </div>
     </div>
@@ -2109,6 +2127,7 @@ body.tour-active{overflow:hidden;}
       <svg class="settings-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <div class="settings-acc-body">
+      <div id="exercise-manager-drag-hint" style="display:none;align-items:center;gap:5px;font-size:9.5px;font-weight:600;color:var(--text3);padding:0 16px 8px;"></div>
       <div id="exercise-manager-days"></div>
     </div>
   </div>
@@ -2139,6 +2158,23 @@ body.tour-active{overflow:hidden;}
             <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(this)">
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-acc" data-acc="danger" style="border-color:rgba(220,60,60,0.22);">
+    <button type="button" class="settings-acc-head" onclick="toggleSettingsAcc(this)" aria-expanded="false">
+      <div class="settings-acc-head-l">
+        <div class="settings-acc-ico" id="acc-ico-danger" style="color:var(--red);background:rgba(220,60,60,0.1);"></div>
+        <div>
+          <div class="settings-acc-title" style="color:var(--red);">منطقه خطر</div>
+          <div class="settings-acc-sub">پاک کردن تاریخچه یا ریست کامل برنامه</div>
+        </div>
+      </div>
+      <svg class="settings-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <div class="settings-acc-body">
+      <div class="settings-section">
         <div class="settings-row">
           <div class="settings-icon" id="si-clear"></div>
           <div class="settings-info"><div class="settings-label">پاک کردن تاریخچه</div><div class="settings-sub">حذف تمام جلسات</div></div>
@@ -6321,6 +6357,8 @@ function applySettingsAccIcons() {
     'acc-ico-days': ICONS.calendar || ICONS.clipboard,
     'acc-ico-exercises': ICONS.dumbbell,
     'acc-ico-data': ICONS.save || ICONS.download,
+    'acc-ico-advanced': ICONS.clipboard,
+    'acc-ico-danger': ICONS.alert,
   };
   Object.keys(map).forEach(id => {
     const el = document.getElementById(id);
@@ -6368,9 +6406,8 @@ function renderSettings() {
   }).join('');
   document.getElementById('exercise-manager-days').innerHTML=appData.days.map(day=>{
     const did=safeId(day.id); if(!did) return '';
-    return `<div class="sec-title" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;">
+    return `<div class="sec-title" style="margin-top:12px;">
       <span>${escHtml(day.name)}</span>
-      ${day.exercises.length>1?'<span style="font-size:10px;font-weight:600;color:var(--text3);display:flex;align-items:center;gap:4px;">'+ICONS.grip+'برای جابه‌جایی بکشید</span>':''}
     </div>
     <div class="settings-section">
       <div class="exercise-editor-list" data-day="${did}">
@@ -6389,6 +6426,17 @@ function renderSettings() {
       </div>
     </div>`;
   }).join('');
+  // راهنمای جابه‌جایی با کشیدن — فقط یک‌بار، کوچک، بالای کل لیست (نه تکرار برای هر روز)
+  const dragHintEl = document.getElementById('exercise-manager-drag-hint');
+  if (dragHintEl) {
+    const anyReorderable = appData.days.some(d => d.exercises.length > 1);
+    if (anyReorderable) {
+      dragHintEl.style.display = 'flex';
+      dragHintEl.innerHTML = ICONS.grip + 'برای جابه‌جایی حرکات، از آیکون کنارشون بکشید';
+    } else {
+      dragHintEl.style.display = 'none';
+    }
+  }
   // درخواست مجوز اعلان فقط یک بار — نه در هر بار renderSettings
   if (typeof Notification!=='undefined' && Notification.permission==='default' &&
       !localStorage.getItem('ironlog_notif_asked')) {
