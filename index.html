@@ -346,6 +346,53 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   font-weight:800;
 }
 
+/* ═══ v6 — FOOTER: جزئیات نهایی (ورود صحنه‌ای، درخشش عبوری، فیدبک لمسی، نشان اعلان) ═══ */
+
+/* ورود صحنه‌ای نوار پایین هنگام بار اول اپ — کل نوار از پایین بالا میاد و دکمه‌ها یکی‌یکی جا می‌افتن */
+.bottom-nav.nav-enter{animation:navBarRise .62s cubic-bezier(.2,.85,.25,1) both;}
+@keyframes navBarRise{0%{opacity:0;transform:translateY(22px) scale(.96);}60%{opacity:1;}100%{opacity:1;transform:translateY(0) scale(1);}}
+.bottom-nav.nav-enter .nav-btn{opacity:0;animation:navBtnRise .5s cubic-bezier(.34,1.56,.64,1) both;}
+.bottom-nav.nav-enter .nav-btn:nth-child(2){animation-delay:.08s;}
+.bottom-nav.nav-enter .nav-btn:nth-child(3){animation-delay:.14s;}
+.bottom-nav.nav-enter .nav-btn:nth-child(4){animation-delay:.20s;}
+.bottom-nav.nav-enter .nav-btn:nth-child(5){animation-delay:.26s;}
+.bottom-nav.nav-enter .nav-btn:nth-child(6){animation-delay:.32s;}
+@keyframes navBtnRise{0%{opacity:0;transform:translateY(10px);}100%{opacity:1;transform:translateY(0);}}
+
+/* درخشش عبوریِ نرم که هر چند ثانیه یک‌بار از روی کل نوار سُر می‌خوره — شیشه‌ی واقعی زیر نور */
+.bottom-nav{overflow:hidden;}
+.bottom-nav::after{
+  content:'';position:absolute;top:0;bottom:0;left:-60%;width:40%;
+  background:linear-gradient(75deg,transparent,rgba(255,255,255,0.10) 45%,rgba(255,255,255,0.16) 50%,rgba(255,255,255,0.10) 55%,transparent);
+  pointer-events:none;transform:skewX(-18deg);
+  animation:navSweep 7s ease-in-out infinite;
+  animation-delay:1.2s;
+}
+[data-theme="light"] .bottom-nav::after,[data-theme="cream"] .bottom-nav::after,[data-theme="ice"] .bottom-nav::after{
+  background:linear-gradient(75deg,transparent,rgba(255,255,255,0.35) 45%,rgba(255,255,255,0.5) 50%,rgba(255,255,255,0.35) 55%,transparent);
+}
+@keyframes navSweep{0%{left:-60%;}18%{left:130%;}100%{left:130%;}}
+
+/* فیدبک لمسی دقیق‌تر روی خودِ آیکون هنگام فشار — کمی فرورفتگی + تیره‌شدن لحظه‌ای */
+.nav-btn:active .nav-icon{transform:scale(0.88);filter:brightness(0.94);}
+.nav-btn.active:active .nav-icon{transform:translateY(-9px) scale(0.9);}
+
+/* نقطه‌ی اعلان (Badge) روی هر تب — برای هشدار/پیام خوانده‌نشده در آینده؛ فعلاً از طریق کلاس has-badge کنترل می‌شه */
+.nav-icon .nav-badge-dot{
+  position:absolute;top:-1px;right:-1px;width:9px;height:9px;border-radius:50%;
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  border:2px solid var(--bg,#0b0b0d);
+  box-shadow:0 0 0 1px rgba(239,68,68,0.35),0 2px 6px rgba(239,68,68,0.5);
+  animation:navBadgePulse 1.8s ease-in-out infinite;
+}
+@keyframes navBadgePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.18);}}
+
+/* برجسته‌تر شدن جزئی سایه‌ی زیر آیکون فعال هنگام هاور روی دسکتاپ */
+@media (hover:hover){
+  .nav-btn:not(.active):hover .nav-icon{background:rgba(255,255,255,0.05);transform:translateY(-2px);}
+  [data-theme="light"] .nav-btn:not(.active):hover .nav-icon,[data-theme="cream"] .nav-btn:not(.active):hover .nav-icon,[data-theme="ice"] .nav-btn:not(.active):hover .nav-icon{background:rgba(0,0,0,0.04);}
+}
+
 .card{background:var(--glass-card);border:1px solid var(--glass-border);border-radius:var(--radius);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden;transition:var(--transition);box-shadow:var(--shadow-sm);position:relative;isolation:isolate;}
 .card::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,0.05) 0%,rgba(255,255,255,0) 30%);pointer-events:none;z-index:1;}
 [data-theme="light"] .card::before,[data-theme="cream"] .card::before,[data-theme="ice"] .card::before{background:linear-gradient(160deg,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 35%);}
@@ -548,6 +595,46 @@ body.log-only-mode::before{
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal-sheet{background:var(--bg2);border:1px solid var(--border2);border-radius:28px 28px 0 0;padding:20px 20px calc(40px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateY(100%);transition:transform 0.45s var(--spring);backdrop-filter:blur(24px);box-shadow:0 -12px 40px rgba(0,0,0,0.5);}
 .modal-overlay.open .modal-sheet{transform:translateY(0);}
+
+/* ─── Wheel Picker (سبک iOS) برای پروفایل مربی AI ─── */
+.wp-section-title{font-size:11px;color:var(--text3);margin:14px 0 8px;font-weight:600;letter-spacing:.2px;}
+.wp-wheel-row{display:flex;gap:10px;position:relative;}
+.wp-col-wrap{flex:1;min-width:0;position:relative;}
+.wp-col-label{font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;}
+.wp-col{
+  height:180px;overflow-y:scroll;scroll-snap-type:y mandatory;
+  -webkit-overflow-scrolling:touch;position:relative;
+  scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 34%,#000 66%,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 34%,#000 66%,transparent 100%);
+  border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);
+}
+.wp-col::-webkit-scrollbar{display:none;}
+.wp-col-inner{padding:72px 0;}
+.wp-item{
+  height:36px;display:flex;align-items:center;justify-content:center;text-align:center;
+  scroll-snap-align:center;padding:0 8px;font-size:13px;color:var(--text2);
+  transform-origin:center;will-change:transform,opacity;user-select:none;-webkit-user-select:none;
+  cursor:pointer;line-height:1.3;
+}
+.wp-center-band{
+  position:absolute;top:50%;left:0;right:0;height:36px;transform:translateY(-50%);
+  border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);
+  background:var(--accent-soft);pointer-events:none;border-radius:8px;
+}
+.wp-add-btn{margin-top:12px;width:100%;}
+.wp-chips-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.wp-chip{
+  padding:8px 14px;border-radius:999px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text2);font-size:12.5px;cursor:pointer;transition:var(--transition);white-space:nowrap;
+}
+.wp-chip.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
+.wp-textarea-label{font-size:11px;color:var(--text3);margin:14px 0 6px;}
+.wp-textarea{
+  width:100%;min-height:70px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:13px;
+  padding:10px 12px;outline:none;resize:vertical;line-height:1.7;
+}
 .modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px;}
 .modal-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:8px;}
 .modal-title-icon{width:20px;height:20px;color:var(--accent);flex-shrink:0;}
@@ -1818,11 +1905,6 @@ body.tour-active{overflow:hidden;}
           <div class="settings-info"><div class="settings-label">تم برنامه</div><div class="settings-sub">رنگ، تم شیشه‌ای و حالت پس‌زمینه</div></div>
           <div class="settings-action"><button class="btn btn-ghost btn-sm" onclick="showThemeModal()">تغییر</button></div>
         </div>
-        <div class="settings-row">
-          <div class="settings-icon" id="si-name"></div>
-          <div class="settings-info"><div class="settings-label">نام برنامه</div><div class="settings-sub" id="app-name-sub">IronLog</div></div>
-          <div class="settings-action"><button class="btn btn-ghost btn-sm" onclick="editAppName()">تغییر</button></div>
-        </div>
       </div>
     </div>
   </div>
@@ -1844,11 +1926,6 @@ body.tour-active{overflow:hidden;}
           <div class="settings-icon" id="si-vibrate"></div>
           <div class="settings-info"><div class="settings-label">ویبره</div><div class="settings-sub">لرزش هنگام پایان تایمر و تکمیل ست</div></div>
           <div class="settings-action"><div class="toggle on" id="toggle-vibrate" onclick="toggleSetting('vibrate',this)"></div></div>
-        </div>
-        <div class="settings-row">
-          <div class="settings-icon" id="si-sound"></div>
-          <div class="settings-info"><div class="settings-label">صدای کلیک مکانیکی</div><div class="settings-sub">صدای رله‌ی آهنی هنگام تکمیل ست — فقط در تم آهنگر</div></div>
-          <div class="settings-action"><div class="toggle on" id="toggle-sound" onclick="toggleSetting('soundEnabled',this)"></div></div>
         </div>
         <div class="settings-row">
           <div class="settings-icon" id="si-autotimer"></div>
@@ -1880,7 +1957,7 @@ body.tour-active{overflow:hidden;}
         <div class="settings-acc-ico" id="acc-ico-coach"></div>
         <div>
           <div class="settings-acc-title">مربی هوشمند</div>
-          <div class="settings-acc-sub">فعال‌سازی و اسم شما</div>
+          <div class="settings-acc-sub">فعال‌سازی، حالت، اهداف و شخصی‌سازی</div>
         </div>
       </div>
       <svg class="settings-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
@@ -1912,28 +1989,6 @@ body.tour-active{overflow:hidden;}
           <div class="settings-info"><div class="settings-label">اعلان یادآوری غیبت</div><div class="settings-sub">وقتی چند روز نیومدی، حتی اگه اپ رو باز نکرده باشی، سعی می‌کنه یادآوری بفرسته (بسته به مرورگر/گوشی)</div></div>
           <div class="settings-action"><div class="toggle" id="toggle-coach-push" onclick="toggleCoachPush(this)"></div></div>
         </div>
-        <div class="settings-row">
-          <div class="settings-icon" id="si-coach-ailimit"></div>
-          <div class="settings-info"><div class="settings-label">سقف روزانه‌ی مربی AI</div><div class="settings-sub">حداکثر تعداد درخواست‌های هوشمند در روز — برای جلوگیری از مصرف بی‌رویه</div></div>
-          <div class="settings-action"><input type="number" class="input-field" id="ai-daily-limit-input" value="20" min="1" max="200" style="width:70px;text-align:center;" onchange="saveAIDailyLimit()"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="settings-acc" data-acc="ai-profile" data-tour="settings-ai-profile">
-    <button type="button" class="settings-acc-head" onclick="toggleSettingsAcc(this)" aria-expanded="false">
-      <div class="settings-acc-head-l">
-        <div class="settings-acc-ico" id="acc-ico-ai-profile"></div>
-        <div>
-          <div class="settings-acc-title">پروفایل مربی AI</div>
-          <div class="settings-acc-sub">اهداف، نکات ایمنی و شخصی‌سازی</div>
-        </div>
-      </div>
-      <svg class="settings-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-    <div class="settings-acc-body">
-      <div class="settings-section">
         <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:8px;">
           <div class="settings-info"><div class="settings-label">حالت مربی</div><div class="settings-sub">آفلاین: قالبی، سریع و رایگان، بدون اینترنت. AI: پاسخ‌های واقعی و شخصی‌سازی‌شده بر اساس همین اطلاعات پایین همین صفحه</div></div>
           <div style="display:flex;gap:8px;">
@@ -2426,6 +2481,43 @@ body.tour-active{overflow:hidden;}
     <div style="display:flex;gap:10px;margin-top:14px;">
       <button class="btn btn-ghost" style="flex:1;" onclick="closeInputModal()">انصراف</button>
       <button class="btn btn-primary" style="flex:2;" onclick="confirmInputModal()">تأیید</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال چرخ‌دنده‌ای انتخاب پروفایل مربی AI (اهداف / مصدومیت / لحن) -->
+<div class="modal-overlay" id="profile-picker-modal" role="dialog" aria-modal="true" aria-label="انتخاب گزینه‌ها">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="wp-title">ویرایش</div>
+
+    <div id="wp-wheel-section" style="display:none;">
+      <div class="wp-section-title">از میون گزینه‌ها بچرخون و انتخاب کن</div>
+      <div class="wp-wheel-row">
+        <div class="wp-col-wrap">
+          <div class="wp-col-label" id="wp-col1-label"></div>
+          <div class="wp-col" id="wp-col1"><div class="wp-col-inner"></div></div>
+        </div>
+        <div class="wp-col-wrap">
+          <div class="wp-col-label" id="wp-col2-label"></div>
+          <div class="wp-col" id="wp-col2"><div class="wp-col-inner"></div></div>
+        </div>
+        <div class="wp-center-band"></div>
+      </div>
+      <button class="btn btn-ghost wp-add-btn" onclick="addWheelSelection()">+ افزودن به لیست</button>
+    </div>
+
+    <div id="wp-chips-section" style="display:none;">
+      <div class="wp-section-title">یکی رو انتخاب کن</div>
+      <div class="wp-chips-wrap" id="wp-chips"></div>
+    </div>
+
+    <div class="wp-textarea-label" id="wp-textarea-label">متن نهایی (قابل ویرایش دستی)</div>
+    <textarea class="wp-textarea" id="wp-textarea" placeholder=""></textarea>
+
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('profile-picker-modal')">انصراف</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="confirmProfilePicker()">تأیید</button>
     </div>
   </div>
 </div>
@@ -2950,7 +3042,7 @@ const ICONS = {
 // ═══════════════════════════════════════════════════
 let appData = {
   version:DATA_VERSION,days:[],history:[],weights:[],readinessLog:[],
-  settings:{vibrate:true,soundEnabled:true,autoTimer:true,askRPE:false,theme:'default',appName:'IronLog',keepAliveAudio:false,coachEnabled:true,coachIntensity:'hard',coachName:'',logOnlyMode:false,coachMode:'offline',aiDailyLimit:20},
+  settings:{vibrate:true,soundEnabled:true,autoTimer:true,askRPE:false,theme:'default',appName:'IronLog',keepAliveAudio:false,coachEnabled:true,coachIntensity:'hard',coachName:'',logOnlyMode:false,coachMode:'offline',aiDailyLimit:60},
   restTimes:{heavy:180,medium:120,light:90},
   monthlyGoal:12, trainingDaysPerWeek:4, prLog:{},
   aiRequestsToday:0, aiRequestsResetDate:null,
@@ -3038,7 +3130,7 @@ function migrateData(d) {
   if (d.version < 7) {
     // فاز ۷: شمارنده‌ی روزانه‌ی درخواست‌های AI و سقف قابل‌تنظیم
     d.settings = d.settings || {};
-    d.settings.aiDailyLimit = d.settings.aiDailyLimit ?? 20;
+    d.settings.aiDailyLimit = d.settings.aiDailyLimit ?? 60;
     d.aiRequestsToday = typeof d.aiRequestsToday === 'number' ? d.aiRequestsToday : 0;
     d.aiRequestsResetDate = d.aiRequestsResetDate ?? null;
     d.version = 7;
@@ -3061,7 +3153,7 @@ function loadData() {
       parsed = migrateData(parsed);
       appData = Object.assign({}, appData, parsed);
       appData.settings = Object.assign(
-        {vibrate:true,soundEnabled:true,autoTimer:true,askRPE:false,theme:'default',appName:'IronLog',keepAliveAudio:false,coachEnabled:true,coachIntensity:'hard',coachName:'',logOnlyMode:false,coachMode:'offline',aiDailyLimit:20},
+        {vibrate:true,soundEnabled:true,autoTimer:true,askRPE:false,theme:'default',appName:'IronLog',keepAliveAudio:false,coachEnabled:true,coachIntensity:'hard',coachName:'',logOnlyMode:false,coachMode:'offline',aiDailyLimit:60},
         parsed.settings || {}
       );
       if (!appData.days) appData.days = [];
@@ -6854,7 +6946,7 @@ function importData(input) {
         if(!ok)return;
         const mig=migrateData(parsed);
         // جایگزینی کامل — نه merge با state قبلی
-        const defaultSettings = {vibrate:true,soundEnabled:true,autoTimer:true,askRPE:false,theme:'default',appName:'IronLog',keepAliveAudio:false,coachEnabled:true,coachIntensity:'hard',coachName:'',logOnlyMode:false,bgMode:'mesh',coachMode:'offline',aiDailyLimit:20};
+        const defaultSettings = {vibrate:true,soundEnabled:true,autoTimer:true,askRPE:false,theme:'default',appName:'IronLog',keepAliveAudio:false,coachEnabled:true,coachIntensity:'hard',coachName:'',logOnlyMode:false,bgMode:'mesh',coachMode:'offline',aiDailyLimit:60};
         appData = {
           version: mig.version || DATA_VERSION,
           days: Array.isArray(mig.days) ? mig.days : [],
@@ -11898,34 +11990,173 @@ function getUserProfileForPrompt() {
 }
 
 // ─── ویرایش دستی فیلدهای کاربر-محور پروفایل (از صفحه‌ی تنظیمات صدا زده می‌شه) ───
-function editUserProfileGoals() {
+function editUserProfileGoals() { openProfilePicker('goals'); }
+function editUserProfileInjuries() { openProfilePicker('injuries'); }
+function editUserProfileTone() { openProfilePicker('tone'); }
+
+// ═══════════════════════════════════════════════════
+//  Wheel Picker پروفایل مربی AI — گزینه‌های آماده‌ی چرخ‌دنده‌ای + چیپ + متن آزاد
+// ═══════════════════════════════════════════════════
+const WP_ITEM_H = 36;
+
+const WP_DATA = {
+  goals: {
+    title: 'اهداف تمرینی',
+    textareaLabel: 'اهداف نهایی (با ویرگول جدا، قابل ویرایش دستی)',
+    col1Label: 'نوع هدف',
+    col2Label: 'اولویت',
+    col1: ['چربی‌سوزی','افزایش حجم عضلانی','افزایش قدرت','افزایش استقامت','فرم‌دهی و تناسب اندام','نگهداری وزن فعلی','آمادگی رقابتی','بازگشت به تمرین بعد از وقفه','بهبود تحرک‌پذیری','افزایش وزن سالم'],
+    col2: ['اولویت اول','هدف ثانویه','هدف بلندمدت','فعلاً در حال بررسی'],
+    combine: (a,b) => `${a} (${b})`
+  },
+  injuries: {
+    title: 'نکات ایمنی / مصدومیت',
+    textareaLabel: 'نکات نهایی (با ویرگول جدا، قابل ویرایش دستی)',
+    col1Label: 'ناحیه',
+    col2Label: 'وضعیت',
+    col1: ['زانوی چپ','زانوی راست','کمر (پایین)','کمر (بالا)','شانه چپ','شانه راست','مچ دست','آرنج','گردن','مچ پا','لگن','زانو (کلی)'],
+    col2: ['درد خفیف','درد متوسط، نیاز به احتیاط','بعد از جراحی، در حال ریکاوری','آسیب قدیمی، هشدار پیشگیرانه','فعلاً بدون درد ولی حساس','ممنوع حرکت پرفشار'],
+    combine: (a,b) => `${a} — ${b}`
+  },
+  tone: {
+    title: 'لحن ترجیحی مربی AI',
+    textareaLabel: 'لحن نهایی (قابل ویرایش دستی)',
+    chips: ['دوستانه و انگیزشی','جدی و نظامی‌وار','علمی و مختصر','شوخ‌طبع و سرزنده','آرام و دلسوز','مستقیم و بی‌تعارف']
+  }
+};
+
+let wpCurrentType = null;
+let wpScrollHandlers = [];
+
+function openProfilePicker(type) {
   const profile = ensureUserProfile();
-  showInputModal('اهداف تمرینی (با ویرگول جدا کن)', profile.goals.join('، '), val => {
+  const cfg = WP_DATA[type];
+  wpCurrentType = type;
+
+  document.getElementById('wp-title').textContent = cfg.title;
+  document.getElementById('wp-textarea-label').textContent = cfg.textareaLabel;
+
+  const ta = document.getElementById('wp-textarea');
+  if (type === 'goals') ta.value = profile.goals.join('، ');
+  else if (type === 'injuries') ta.value = profile.injuryNotes.join('، ');
+  else ta.value = profile.preferredTone || '';
+
+  const wheelSec = document.getElementById('wp-wheel-section');
+  const chipsSec = document.getElementById('wp-chips-section');
+
+  // پاک‌سازی هندلرهای اسکرول قبلی
+  wpScrollHandlers.forEach(h => h.col.removeEventListener('scroll', h.fn));
+  wpScrollHandlers = [];
+
+  if (type === 'tone') {
+    wheelSec.style.display = 'none';
+    chipsSec.style.display = 'block';
+    const chipsWrap = document.getElementById('wp-chips');
+    chipsWrap.innerHTML = '';
+    cfg.chips.forEach(text => {
+      const chip = document.createElement('div');
+      chip.className = 'wp-chip';
+      chip.textContent = text;
+      if ((profile.preferredTone || '').trim() === text) chip.classList.add('active');
+      chip.onclick = () => {
+        chipsWrap.querySelectorAll('.wp-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        document.getElementById('wp-textarea').value = text;
+      };
+      chipsWrap.appendChild(chip);
+    });
+  } else {
+    wheelSec.style.display = 'block';
+    chipsSec.style.display = 'none';
+    document.getElementById('wp-col1-label').textContent = cfg.col1Label;
+    document.getElementById('wp-col2-label').textContent = cfg.col2Label;
+    buildWheelColumn('wp-col1', cfg.col1);
+    buildWheelColumn('wp-col2', cfg.col2);
+  }
+
+  openModal('profile-picker-modal');
+}
+
+function buildWheelColumn(colId, items) {
+  const col = document.getElementById(colId);
+  const inner = col.querySelector('.wp-col-inner');
+  inner.innerHTML = '';
+  items.forEach(text => {
+    const item = document.createElement('div');
+    item.className = 'wp-item';
+    item.textContent = text;
+    item.onclick = () => {
+      const idx = items.indexOf(text);
+      col.scrollTo({ top: idx * WP_ITEM_H, behavior: 'smooth' });
+    };
+    inner.appendChild(item);
+  });
+  col.scrollTop = 0;
+
+  let rafPending = false;
+  let snapTimer = null;
+  const applyEffect = () => {
+    rafPending = false;
+    const colRect = col.getBoundingClientRect();
+    const centerY = colRect.top + colRect.height / 2;
+    inner.querySelectorAll('.wp-item').forEach(item => {
+      const r = item.getBoundingClientRect();
+      const itemCenter = r.top + r.height / 2;
+      const dist = (itemCenter - centerY) / WP_ITEM_H;
+      const abs = Math.abs(dist);
+      const scale = Math.max(1 - abs * 0.16, 0.72);
+      const opacity = Math.max(1 - abs * 0.4, 0.25);
+      item.style.transform = `scale(${scale})`;
+      item.style.opacity = opacity;
+    });
+  };
+  const onScroll = () => {
+    if (!rafPending) { rafPending = true; requestAnimationFrame(applyEffect); }
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(() => {
+      const idx = Math.round(col.scrollTop / WP_ITEM_H);
+      col.scrollTo({ top: idx * WP_ITEM_H, behavior: 'smooth' });
+    }, 140);
+  };
+  col.addEventListener('scroll', onScroll);
+  wpScrollHandlers.push({ col, fn: onScroll });
+  applyEffect();
+}
+
+function getWheelSelectedText(colId, items) {
+  const col = document.getElementById(colId);
+  const idx = Math.min(Math.max(Math.round(col.scrollTop / WP_ITEM_H), 0), items.length - 1);
+  return items[idx];
+}
+
+function addWheelSelection() {
+  const cfg = WP_DATA[wpCurrentType];
+  const a = getWheelSelectedText('wp-col1', cfg.col1);
+  const b = getWheelSelectedText('wp-col2', cfg.col2);
+  const sentence = cfg.combine(a, b);
+  const ta = document.getElementById('wp-textarea');
+  const existing = (ta.value || '').split(/[،,]/).map(s => s.trim()).filter(Boolean);
+  if (!existing.includes(sentence)) existing.push(sentence);
+  ta.value = existing.join('، ');
+  showToast('اضافه شد', 'success');
+}
+
+function confirmProfilePicker() {
+  const profile = ensureUserProfile();
+  const val = document.getElementById('wp-textarea').value;
+  if (wpCurrentType === 'goals') {
     profile.goals = (val || '').split(/[،,]/).map(s => s.trim()).filter(Boolean);
-    saveData();
-    renderAIProfileSettings();
     showToast('اهداف ذخیره شد', 'success');
-  });
-}
-
-function editUserProfileInjuries() {
-  const profile = ensureUserProfile();
-  showInputModal('نکات ایمنی / مصدومیت (با ویرگول جدا کن)', profile.injuryNotes.join('، '), val => {
+  } else if (wpCurrentType === 'injuries') {
     profile.injuryNotes = (val || '').split(/[،,]/).map(s => s.trim()).filter(Boolean);
-    saveData();
-    renderAIProfileSettings();
     showToast('نکات ایمنی ذخیره شد', 'success');
-  });
-}
-
-function editUserProfileTone() {
-  const profile = ensureUserProfile();
-  showInputModal('لحن ترجیحی مربی AI', profile.preferredTone, val => {
+  } else if (wpCurrentType === 'tone') {
     profile.preferredTone = (val || '').trim() || getDefaultUserProfile().preferredTone;
-    saveData();
-    renderAIProfileSettings();
     showToast('لحن ذخیره شد', 'success');
-  });
+  }
+  saveData();
+  renderAIProfileSettings();
+  closeModal('profile-picker-modal');
 }
 
 // ─── رندر بخش «پروفایل مربی AI» در صفحه‌ی تنظیمات ───
@@ -13461,7 +13692,16 @@ function moveNavIndicator(page, pop){
     void nav.offsetWidth;
     nav.classList.add('pop');
     setTimeout(()=>nav.classList.remove('pop'), 500);
+    if (appData.settings.vibrate && navigator.vibrate) navigator.vibrate(7);
   }
+}
+// ورود صحنه‌ای نوار پایین — فقط یک‌بار، در همون بار اول که اپ کامل لود و رندر شد
+function playNavBarEntrance(){
+  const nav = document.querySelector('.bottom-nav');
+  if (!nav || nav.dataset.entered) return;
+  nav.dataset.entered = '1';
+  nav.classList.add('nav-enter');
+  nav.addEventListener('animationend', () => nav.classList.remove('nav-enter'), {once:true});
 }
 window.addEventListener('resize', ()=>{
   const active = document.querySelector('.bottom-nav .nav-btn.active');
@@ -14525,6 +14765,7 @@ function init() {
   setupShake();
   setupHeaderCollapse();
   requestAnimationFrame(()=>moveNavIndicator('workout', false));
+  setTimeout(playNavBarEntrance, 120);
   let _resizeT = null;
   window.addEventListener('resize',()=>{
     clearTimeout(_resizeT);
