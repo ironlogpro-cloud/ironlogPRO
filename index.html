@@ -943,20 +943,52 @@ body.log-only-mode::before{
 .notif-panel{overflow:hidden;max-height:0;transition:max-height 0.35s ease;}
 .notif-panel.open{max-height:2400px;}
 /* ═══ LITE MODE — حذف جلوه‌های سنگین برای گوشی‌های ضعیف ═══
-   backdrop-filter (بلور پشت‌زمینه) گرون‌ترین افکت روی GPU ضعیفه؛ سایه‌های چندلایه و
-   انیمیشن/ترنزیشن هم روی گوشی‌های قدیمی جنک ایجاد می‌کنن. این بلوک همه‌شون رو خاموش
-   می‌کنه، بدون اینکه چیزی از خودِ ظاهر/رنگ‌بندی معمولی رو تغییر بده. */
-html.lite-mode * {
+   backdrop-filter (بلور پشت‌زمینه) گرون‌ترین افکت روی GPU ضعیفه؛ سایه‌های چندلایه، انیمیشن‌های
+   بی‌نهایت‌تکرار (مثل درخشش عبوری هدر یا چرخش نشان لوگو) و ترنزیشن‌های طولانی هم روی گوشی‌های
+   قدیمی جنک/کندی ایجاد می‌کنن.
+   دو نکته‌ی مهم که نسخه‌ی قبلی این بلوک نداشت:
+   ۱) سلکتور «*» به‌تنهایی شبه‌المان‌های ::before و ::after رو نمی‌گیره؛ برای همین جلوه‌های
+      سنگینی مثل درخشش بی‌نهایت هدر (headerSheen, 7s infinite) یا چرخش نشان لوگو (badgeSpin)
+      اصلاً خاموش نمی‌شدن و لایت‌مود عملاً بی‌اثر بود روی سنگین‌ترین افکت‌های صفحه.
+   ۲) استفاده از animation:none باعث می‌شد المان‌هایی که حالت اولیه‌شون opacity:0/جابه‌جا‌شده
+      هست و فقط با اجرای انیمیشن (fill-mode: both/forwards) به حالت نهایی می‌رسن — مثل دکمه‌های
+      نوار پایین (nav-enter) یا آیتم‌های صفحه‌ی «تازه‌ها» (whatsnew-item) — برای همیشه نامرئی
+      بمونن، چون هم استایل نهایی اعمال نمی‌شد و هم رویداد animationend که JS منتظرشه هیچ‌وقت
+      فایر نمی‌شد. برای همین به‌جای خاموش‌کردن کامل، مدت انیمیشن رو به یه عدد خیلی کوچیک
+      می‌رسونیم (نه صفر مطلق) تا هم عملاً بی‌هزینه/بی‌جلوه بشه و هم به حالت نهایی درست برسه.
+   ۳) transition-duration قبلاً 0.001s بود که باعث «پرش»/تکون ناگهانی described توسط کاربر
+      می‌شد (مثلاً جمع‌شدن ناگهانی هدر موقع اسکرول). یه مقدار کوتاه ولی نرم (0.15s) جایگزینش
+      شده تا هم سبک بمونه هم دیگه پرشی حس نشه. */
+html.lite-mode *,
+html.lite-mode *::before,
+html.lite-mode *::after {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
   text-shadow: none !important;
-  animation: none !important;
-  transition-duration: 0.001s !important;
+  will-change: auto !important;
+  animation-duration: 0.01s !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.15s !important;
   transition-delay: 0s !important;
 }
 html.lite-mode {
   --blur: none;
+}
+/* توی حالت سبک، backdrop-filter و box-shadow کلاً خاموش می‌شن (برای کارایی)، ولی چون
+   بک‌گراند نوار پایین (.bottom-nav) روی --glass-bg (که برای دیده‌شدن پشت بلور طراحی شده)
+   سوار بود، بدون بلور و بدون سایه، محو/مات و بی‌شکل به‌نظر می‌رسید. اینجا یه پس‌زمینه‌ی
+   کاملاً کدر (solid) و یه سایه‌ی سبک و تک‌لایه (ارزون از نظر کارایی) مخصوص حالت سبک بهش
+   می‌دیم تا هم روی گوشی ضعیف سبک بمونه هم شکل درست و واضح داشته باشه. */
+html.lite-mode .bottom-nav{
+  background:var(--bg2) !important;
+  border-color:var(--border2) !important;
+  box-shadow:0 2px 10px rgba(0,0,0,0.35) !important;
+}
+html.lite-mode .nav-indicator{
+  background:var(--accent-soft) !important;
+  box-shadow:none !important;
 }
 /* ═══ MISC ═══ */
 .toast{position:fixed;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);border-radius:50px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--text);z-index:300;opacity:0;transition:all 0.3s ease;pointer-events:none;white-space:normal;max-width:min(92vw,420px);text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;}
@@ -1661,7 +1693,10 @@ body.tour-active{overflow:hidden;}
 // ═══ LITE MODE — تشخیص زودهنگام گوشی ضعیف، قبل از رندر اولیه ═══
 // اینجا (بلافاصله بعد از باز شدن body و قبل از رندر بقیه‌ی صفحه) اجرا می‌شه تا هیچ فلشی از
 // حالت سنگین دیده نشه. تصمیم نهایی رو applyLiteMode (پایین‌تر توی اسکریپت اصلی) هم دوباره
-// می‌گیره تا مطمئن بشیم همیشه sync هست، ولی این نسخه‌ی زودهنگام همون منطق ساده رو داره.
+// می‌گیره تا مطمئن بشیم همیشه sync هست؛ این نسخه‌ی زودهنگام همون منطق detectLowEndDevice رو
+// (بدون بخش jank-sampling که نیاز به رندر واقعی داره) به‌صورت خلاصه تکرار می‌کنه. سه سیگنال:
+// تعداد هسته‌ی CPU، حافظه‌ی دستگاه (فقط کروم/اندروید)، و Data Saver / کیفیت پایین اینترنت
+// (سیگنال خوبی برای «دستگاه/شرایط ضعیف» حتی وقتی مشخصات سخت‌افزاری در دسترس نیست، مثل iOS).
 (function(){
   try{
     var mode = localStorage.getItem('ironlog_lite_mode') || 'auto';
@@ -1669,7 +1704,9 @@ body.tour-active{overflow:hidden;}
     if (mode === 'auto') {
       var cores = navigator.hardwareConcurrency || 8;
       var mem = navigator.deviceMemory; // فقط روی کروم/اندروید موجوده؛ روی iOS نامشخصه
-      lowEnd = cores <= 4 || (typeof mem === 'number' && mem <= 4);
+      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      var weakConn = !!(conn && (conn.saveData || /^(slow-2g|2g|3g)$/.test(conn.effectiveType || '')));
+      lowEnd = cores <= 4 || (typeof mem === 'number' && mem <= 4) || weakConn;
     }
     if (mode === 'on' || (mode === 'auto' && lowEnd)) document.documentElement.classList.add('lite-mode');
   }catch(e){}
@@ -6593,10 +6630,16 @@ function toggleSetting(key,el) {
 //  تشخیص داده می‌شه (همون منطق اسکریپت اولیه‌ی بالای body که قبل از رندر اجرا می‌شه)؛
 //  کاربر می‌تونه از تنظیمات این تصمیم رو دستی override کنه (روشن/خاموش/خودکار).
 // ═══════════════════════════════════════════════════
+// یه پرچم فقط برای همین سشن: اگه واچ‌داگ افت فریم واقعی رو حین استفاده تشخیص بده، این true
+// می‌شه و در تصمیم‌های بعدیِ حالت «خودکار» لحاظ می‌شه — بدون اینکه ترجیح ذخیره‌شده‌ی کاربر
+// (localStorage) رو دستکاری کنه، چون این فقط یه علامت «این سشن واقعاً کند اجرا شد» هست.
+let _liteJankDetectedThisSession = false;
 function detectLowEndDevice() {
   const cores = navigator.hardwareConcurrency || 8;
   const mem = navigator.deviceMemory; // فقط کروم/اندروید؛ روی iOS undefined می‌مونه
-  return cores <= 4 || (typeof mem === 'number' && mem <= 4);
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const weakConn = !!(conn && (conn.saveData || /^(slow-2g|2g|3g)$/.test(conn.effectiveType || '')));
+  return cores <= 4 || (typeof mem === 'number' && mem <= 4) || weakConn || _liteJankDetectedThisSession;
 }
 function getLiteModePref() {
   return localStorage.getItem('ironlog_lite_mode') || 'auto';
@@ -6624,7 +6667,8 @@ function syncLiteModeToggleUI() {
   const note = document.getElementById('lite-mode-note');
   if (note) {
     note.textContent = pref === 'auto'
-      ? (on ? 'خودکار روشن شد (گوشی ضعیف تشخیص داده شد)' : 'خودکار خاموش (گوشی قوی تشخیص داده شد)')
+      ? (on ? (_liteJankDetectedThisSession ? 'خودکار روشن شد (افت کارایی حین اجرا تشخیص داده شد)' : 'خودکار روشن شد (گوشی ضعیف تشخیص داده شد)')
+             : 'خودکار خاموش (گوشی قوی تشخیص داده شد)')
       : (pref === 'on' ? 'دستی روشن' : 'دستی خاموش');
   }
 }
@@ -6633,6 +6677,38 @@ function cycleLiteModePref() {
   const cur = getLiteModePref();
   const next = cur === 'auto' ? 'on' : (cur === 'on' ? 'off' : 'auto');
   setLiteModePref(next);
+}
+// ─── واچ‌داگ افت فریم: چند ثانیه بعد از لود، واقعاً نرخ فریم رو اندازه می‌گیره ───
+// روی خیلی از گوشی‌های ضعیف (مخصوصاً iOS که deviceMemory اصلاً در دسترس نیست، یا اندرویدهای
+// میان‌رده که هسته‌ی زیاد دارن ولی هر هسته ضعیفه) تشخیص «خودکار» بر پایه‌ی مشخصات سخت‌افزاری
+// به‌تنهایی کافی نیست. این واچ‌داگ فقط وقتی حالت «خودکار» فعاله و لایت‌مود هنوز خاموشه اجرا
+// می‌شه، حدود ۱.۵ ثانیه نرخ فریم واقعی صفحه رو می‌سنجه، و اگه میانگین به‌وضوح زیر ۳۰fps بود
+// (یعنی جنکِ واقعی و محسوس)، خودش رو یه‌بار متوقف می‌کنه و لایت‌مود رو روشن می‌کنه.
+function startLiteJankWatchdog() {
+  if (getLiteModePref() !== 'auto' || document.documentElement.classList.contains('lite-mode')) return;
+  let frames = 0, dropped = 0, start = null, last = null;
+  const SAMPLE_MS = 1500;
+  function tick(ts) {
+    if (start === null) { start = ts; last = ts; }
+    const delta = ts - last;
+    last = ts;
+    frames++;
+    if (delta > 40) dropped++; // فریمی که بیش از ~40ms طول کشیده یعنی افت زیر ~25fps لحظه‌ای
+    if (ts - start < SAMPLE_MS) {
+      requestAnimationFrame(tick);
+      return;
+    }
+    const avgFps = frames / ((ts - start) / 1000);
+    const dropRatio = dropped / frames;
+    if (avgFps < 30 || dropRatio > 0.35) {
+      _liteJankDetectedThisSession = true;
+      if (applyLiteMode()) {
+        syncLiteModeToggleUI();
+        showToast('به‌خاطر افت کارایی، حالت سبک به‌صورت خودکار فعال شد', 'info');
+      }
+    }
+  }
+  requestAnimationFrame(tick);
 }
 
 // ═══════════════════════════════════════════════════
@@ -15099,6 +15175,10 @@ function startAppAfterLicense() {
   loadData();
   applyTheme(appData.settings.theme||'default');
   applyLiteMode();
+  // واچ‌داگ افت فریم رو کمی بعد از رندر اولیه (وقتی صفحه واقعاً پایدار شده) شروع می‌کنیم،
+  // نه بلافاصله — چون خودِ رندر اولیه‌ی صفحه طبیعتاً چند فریم سنگین‌تره و نباید به‌اشتباه
+  // به‌عنوان «جنک دائمی» حساب بشه.
+  setTimeout(startLiteJankWatchdog, 1200);
   applyBgMode(appData.settings.bgMode||'mesh');
   applyAppName(appData.settings.appName);
   applyStaticIcons();
