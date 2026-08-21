@@ -1251,20 +1251,25 @@ body, .page, .card, .day-card, .settings-icon, .stat-card { transition: backgrou
   overflow:hidden;
   backdrop-filter:blur(10px);
   box-shadow:var(--shadow-sm);
-  transition:transform .38s cubic-bezier(.22,1,.36,1),opacity .3s ease,background .3s ease,border-color .3s ease,box-shadow .38s ease;
-  transform-origin:center top;
+  transition:opacity .35s ease,filter .35s ease,background .35s ease,border-color .35s ease,box-shadow .4s ease,margin .35s cubic-bezier(.22,1,.36,1);
   position:relative;
 }
 .settings-acc.open{
-  background:linear-gradient(180deg,var(--accent-soft),var(--glass-card) 55%);
+  background:var(--glass-card);
   border-color:var(--accent-soft);
-  box-shadow:0 14px 32px -14px var(--accent-glow),0 4px 14px rgba(0,0,0,0.28);
-  transform:scale(1.018);
-  z-index:2;
+  box-shadow:0 12px 28px -16px var(--accent-glow),0 2px 10px rgba(0,0,0,0.22),inset 0 0 0 1px var(--accent-soft);
+  margin-top:4px;
+  margin-bottom:14px;
+}
+.settings-acc.open .settings-acc-head{
+  background:linear-gradient(180deg,var(--accent-soft),transparent);
+}
+.settings-acc.open .settings-acc-ico{
+  background:var(--accent);color:#fff;
+  box-shadow:0 4px 12px -2px var(--accent-glow);
 }
 #page-settings.acc-focused .settings-acc:not(.open){
-  opacity:.5;
-  transform:scale(0.965);
+  opacity:.55;
 }
 .settings-acc-head{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -1292,11 +1297,11 @@ body, .page, .card, .day-card, .settings-icon, .stat-card { transition: backgrou
 .settings-acc.open .settings-acc-chev{transform:rotate(-90deg);color:var(--accent);}
 .settings-acc-body{
   max-height:0;overflow:hidden;opacity:0;
-  transition:max-height .32s cubic-bezier(0.22,1,0.36,1), opacity .22s ease;
+  transition:max-height .42s cubic-bezier(0.65,0,0.35,1), opacity .28s ease .04s;
   border-top:1px solid transparent;
 }
 .settings-acc.open .settings-acc-body{
-  max-height:2000px;opacity:1;
+  opacity:1;
   border-top-color:var(--glass-border);
 }
 /* بخش‌های داخل آکاردئون دیگر margin افقی جدا نمی‌خواهند */
@@ -6336,6 +6341,7 @@ function toggleSettingsAcc(btn) {
   const willOpen = !acc.classList.contains('open');
   const page = document.getElementById('page-settings');
   const st = getSettingsAccState();
+  const body = acc.querySelector('.settings-acc-body');
   // فقط یک آکاردئون در آن واحد باز باشد — بقیه خودکار بسته می‌شوند
   if (willOpen && page) {
     page.querySelectorAll('.settings-acc.open').forEach(other => {
@@ -6343,6 +6349,8 @@ function toggleSettingsAcc(btn) {
       other.classList.remove('open');
       const otherHead = other.querySelector('.settings-acc-head');
       if (otherHead) otherHead.setAttribute('aria-expanded', 'false');
+      const otherBody = other.querySelector('.settings-acc-body');
+      if (otherBody) collapseAccBody(otherBody);
       const otherKey = other.getAttribute('data-acc');
       if (otherKey) st[otherKey] = false;
     });
@@ -6350,9 +6358,28 @@ function toggleSettingsAcc(btn) {
   acc.classList.toggle('open', willOpen);
   btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
   if (page) page.classList.toggle('acc-focused', willOpen);
+  if (body) { if (willOpen) expandAccBody(body); else collapseAccBody(body); }
   const key = acc.getAttribute('data-acc');
   if (key) st[key] = willOpen;
   setSettingsAccState(st);
+}
+// اندازه‌ی واقعی محتوا را اندازه می‌گیرد تا انیمیشن باز/بسته‌شدن دقیقاً هم‌زمان با محتوای واقعی تمام شود
+// (به‌جای یک max-height ثابت و بزرگ که باعث می‌شد باز شدن ناگهانی/پُرشی به‌نظر برسد)
+function expandAccBody(body) {
+  body.style.maxHeight = body.scrollHeight + 'px';
+  const onEnd = e => {
+    if (e.target !== body || e.propertyName !== 'max-height') return;
+    if (body.closest('.settings-acc')?.classList.contains('open')) body.style.maxHeight = 'none';
+    body.removeEventListener('transitionend', onEnd);
+  };
+  body.addEventListener('transitionend', onEnd);
+}
+function collapseAccBody(body) {
+  // اگر الان max-height:none است، اول باید مقدار واقعی فعلی را ست کنیم تا ترانزیشن از یک عدد مشخص به صفر برود
+  if (!body.style.maxHeight || body.style.maxHeight === 'none') {
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+  requestAnimationFrame(() => { body.style.maxHeight = '0px'; });
 }
 function restoreSettingsAccState() {
   const st = getSettingsAccState();
@@ -6369,6 +6396,15 @@ function restoreSettingsAccState() {
     acc.classList.toggle('open', finalOpen);
     const head = acc.querySelector('.settings-acc-head');
     if (head) head.setAttribute('aria-expanded', finalOpen ? 'true' : 'false');
+    // مقداردهی اولیه‌ی ارتفاع بدون انیمیشن (فقط حالت اولیه، نه یک باز/بسته‌ی واقعی)
+    const body = acc.querySelector('.settings-acc-body');
+    if (body) {
+      const prevTransition = body.style.transition;
+      body.style.transition = 'none';
+      body.style.maxHeight = finalOpen ? 'none' : '0px';
+      void body.offsetHeight; // فورس ری‌فلو تا transition:none واقعاً اعمال بشه
+      body.style.transition = prevTransition;
+    }
   });
   if (page) page.classList.toggle('acc-focused', !!openKey);
 }
