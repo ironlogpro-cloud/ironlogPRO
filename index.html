@@ -412,6 +412,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .log-only-quick-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2,var(--accent)));color:#fff;border-color:transparent;box-shadow:0 0 0 3px rgba(var(--accent-rgb,99,102,241),0.18);}
 
 /* ═══ LOG-ONLY MODE (مرحله ۸): حذف عناصر تزئینی/تحلیلی، تمرکز کامل روی ثبت سریع ═══ */
+body.log-only-mode #notif-bar,
+body.log-only-mode #notif-panel,
 body.log-only-mode #install-banner-wrap,
 body.log-only-mode #coach-banner-wrap,
 body.log-only-mode #streak-banner-wrap,
@@ -928,6 +930,34 @@ body.log-only-mode::before{
   .welcome-feature-row{padding:12px 14px;gap:11px;}
 }
 
+/* ═══ NOTIF BAR (خلاصه‌ی مینیمال اعلان‌های صفحه اصلی) ═══ */
+.notif-bar{width:calc(100% - 32px);margin:12px 16px 0;padding:10px 14px;background:var(--glass-card);border:1px solid var(--glass-border);border-radius:50px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px;cursor:pointer;font-family:inherit;text-align:right;transition:background 0.2s ease,border-color 0.2s ease;}
+.notif-bar:active{background:var(--bg3);}
+.notif-bar-icon{width:17px;height:17px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--accent);}
+.notif-bar-icon svg{width:100%;height:100%;}
+.notif-bar-text{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.notif-bar-badge{flex-shrink:0;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#fff;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.notif-bar-chevron{flex-shrink:0;width:12px;height:12px;color:var(--text3);transition:transform 0.25s ease;display:flex;}
+.notif-bar-chevron svg{width:100%;height:100%;}
+.notif-bar.open .notif-bar-chevron{transform:rotate(180deg);}
+.notif-panel{overflow:hidden;max-height:0;transition:max-height 0.35s ease;}
+.notif-panel.open{max-height:2400px;}
+/* ═══ LITE MODE — حذف جلوه‌های سنگین برای گوشی‌های ضعیف ═══
+   backdrop-filter (بلور پشت‌زمینه) گرون‌ترین افکت روی GPU ضعیفه؛ سایه‌های چندلایه و
+   انیمیشن/ترنزیشن هم روی گوشی‌های قدیمی جنک ایجاد می‌کنن. این بلوک همه‌شون رو خاموش
+   می‌کنه، بدون اینکه چیزی از خودِ ظاهر/رنگ‌بندی معمولی رو تغییر بده. */
+html.lite-mode * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  animation: none !important;
+  transition-duration: 0.001s !important;
+  transition-delay: 0s !important;
+}
+html.lite-mode {
+  --blur: none;
+}
 /* ═══ MISC ═══ */
 .toast{position:fixed;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);border-radius:50px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--text);z-index:300;opacity:0;transition:all 0.3s ease;pointer-events:none;white-space:normal;max-width:min(92vw,420px);text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;}
 .toast-icon{width:16px;height:16px;flex-shrink:0;display:flex;}
@@ -1627,6 +1657,24 @@ body.tour-active{overflow:hidden;}
 </style>
 </head>
 <body>
+<script>
+// ═══ LITE MODE — تشخیص زودهنگام گوشی ضعیف، قبل از رندر اولیه ═══
+// اینجا (بلافاصله بعد از باز شدن body و قبل از رندر بقیه‌ی صفحه) اجرا می‌شه تا هیچ فلشی از
+// حالت سنگین دیده نشه. تصمیم نهایی رو applyLiteMode (پایین‌تر توی اسکریپت اصلی) هم دوباره
+// می‌گیره تا مطمئن بشیم همیشه sync هست، ولی این نسخه‌ی زودهنگام همون منطق ساده رو داره.
+(function(){
+  try{
+    var mode = localStorage.getItem('ironlog_lite_mode') || 'auto';
+    var lowEnd = false;
+    if (mode === 'auto') {
+      var cores = navigator.hardwareConcurrency || 8;
+      var mem = navigator.deviceMemory; // فقط روی کروم/اندروید موجوده؛ روی iOS نامشخصه
+      lowEnd = cores <= 4 || (typeof mem === 'number' && mem <= 4);
+    }
+    if (mode === 'on' || (mode === 'auto' && lowEnd)) document.documentElement.classList.add('lite-mode');
+  }catch(e){}
+})();
+</script>
 
 <!-- ═══ LICENSE GATE ═══ -->
 <div id="license-screen">
@@ -1761,17 +1809,25 @@ body.tour-active{overflow:hidden;}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span id="session-timer-display">00:00</span>
       </div>
-      <button class="page-help-btn" id="home-help-btn" onclick="TourEngine.start('home')" title="راهنمای این صفحه">
+      <button class="page-help-btn" id="home-help-btn" onclick="openNotifPanel();TourEngine.start('home')" title="راهنمای این صفحه">
         <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" fill="url(#hbg)" opacity="0.18"/><path d="M9.3 9.4a2.8 2.8 0 015.4.9c0 1.7-1.6 2.1-2.3 2.9-.35.4-.5.8-.5 1.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="17.1" r="1.15" fill="currentColor"/><defs><linearGradient id="hbg" x1="0" y1="0" x2="24" y2="24"><stop offset="0" stop-color="var(--accent2)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs></svg>
       </button>
     </div>
   </div>
   <div id="day-selector-view">
-    <div id="install-banner-wrap" data-tour="home-installbanner"></div>
-    <div id="coach-banner-wrap" data-tour="home-coachbanner"></div>
-    <div id="streak-banner-wrap" data-tour="home-streakbanner"></div>
-    <div id="smart-suggestions-wrap" data-tour="home-suggestions"></div>
-    <div id="monthly-goal-banner" data-tour="home-monthlygoal"></div>
+    <button type="button" class="notif-bar" id="notif-bar" onclick="toggleNotifPanel()" style="display:none;">
+      <span class="notif-bar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+      <span class="notif-bar-text" id="notif-bar-text">اعلان‌ها</span>
+      <span class="notif-bar-badge" id="notif-bar-badge" style="display:none;">0</span>
+      <span class="notif-bar-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </button>
+    <div class="notif-panel" id="notif-panel">
+      <div id="install-banner-wrap" data-tour="home-installbanner"></div>
+      <div id="coach-banner-wrap" data-tour="home-coachbanner"></div>
+      <div id="streak-banner-wrap" data-tour="home-streakbanner"></div>
+      <div id="smart-suggestions-wrap" data-tour="home-suggestions"></div>
+      <div id="monthly-goal-banner" data-tour="home-monthlygoal"></div>
+    </div>
     <div class="sec-title-row">
       <div class="sec-title" style="margin:0;">انتخاب روز تمرین</div>
       <button class="log-only-quick-btn" id="log-only-quick-btn" data-tour="home-logonly" onclick="toggleLogOnlyQuick()" title="حالت فقط‌لاگ">
@@ -1952,6 +2008,11 @@ body.tour-active{overflow:hidden;}
           <div class="settings-icon" id="si-logonly"></div>
           <div class="settings-info"><div class="settings-label">حالت فقط‌لاگ</div><div class="settings-sub">حذف مربی، پیشنهادها، کانفتی و انیمیشن‌های تزئینی — فقط ثبت سریع ست</div></div>
           <div class="settings-action"><div class="toggle" id="toggle-logonly" onclick="toggleSetting('logOnlyMode',this)"></div></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-icon" id="si-litemode"></div>
+          <div class="settings-info"><div class="settings-label">حالت سبک (Lite Mode)</div><div class="settings-sub">برای گوشی‌های ضعیف — بلور پشت‌زمینه و سایه‌های سنگین رو خاموش می‌کنه تا روان‌تر بشه. با تپ بین «خودکار / روشن / خاموش» جابه‌جا می‌شه.</div><div id="lite-mode-note" style="font-size:11px;color:var(--text3);margin-top:4px;"></div></div>
+          <div class="settings-action"><div class="toggle" id="toggle-lite-mode" onclick="cycleLiteModePref()"></div></div>
         </div>
       </div>
     </div>
@@ -2181,33 +2242,6 @@ body.tour-active{overflow:hidden;}
     </div>
   </div>
 
-  <div class="settings-acc" data-acc="danger" style="border-color:rgba(220,60,60,0.22);">
-    <button type="button" class="settings-acc-head" onclick="toggleSettingsAcc(this)" aria-expanded="false">
-      <div class="settings-acc-head-l">
-        <div class="settings-acc-ico" id="acc-ico-danger" style="color:var(--red);background:rgba(220,60,60,0.1);"></div>
-        <div>
-          <div class="settings-acc-title" style="color:var(--red);">منطقه خطر</div>
-          <div class="settings-acc-sub">پاک کردن تاریخچه یا ریست کامل برنامه</div>
-        </div>
-      </div>
-      <svg class="settings-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-    <div class="settings-acc-body">
-      <div class="settings-section">
-        <div class="settings-row">
-          <div class="settings-icon" id="si-clear"></div>
-          <div class="settings-info"><div class="settings-label">پاک کردن تاریخچه</div><div class="settings-sub">حذف تمام جلسات</div></div>
-          <div class="settings-action"><button class="btn btn-danger btn-sm" onclick="clearHistory()">پاک کردن</button></div>
-        </div>
-        <div class="settings-row" id="si-reset-all-row" style="border-top:1px dashed var(--border);margin-top:6px;padding-top:14px;">
-          <div class="settings-icon" id="si-reset-all"></div>
-          <div class="settings-info"><div class="settings-label" style="color:var(--red);">ریست کامل برنامه</div><div class="settings-sub">حذف همه‌چیز — روزها، حرکات، تاریخچه، آمار و تنظیمات — و شروع از صفر</div></div>
-          <div class="settings-action"><button class="btn btn-danger btn-sm" onclick="resetAppCompletely()">ریست کامل</button></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="settings-acc" data-acc="help">
     <button type="button" class="settings-acc-head" data-tour="settings-fullhelp" onclick="toggleSettingsAcc(this)" aria-expanded="false">
       <div class="settings-acc-head-l">
@@ -2262,10 +2296,37 @@ body.tour-active{overflow:hidden;}
     </div>
   </div>
 
+  <div class="settings-acc" data-acc="danger" style="border-color:rgba(220,60,60,0.22);">
+    <button type="button" class="settings-acc-head" onclick="toggleSettingsAcc(this)" aria-expanded="false">
+      <div class="settings-acc-head-l">
+        <div class="settings-acc-ico" id="acc-ico-danger" style="color:var(--red);background:rgba(220,60,60,0.1);"></div>
+        <div>
+          <div class="settings-acc-title" style="color:var(--red);">منطقه خطر</div>
+          <div class="settings-acc-sub">پاک کردن تاریخچه یا ریست کامل برنامه</div>
+        </div>
+      </div>
+      <svg class="settings-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <div class="settings-acc-body">
+      <div class="settings-section">
+        <div class="settings-row">
+          <div class="settings-icon" id="si-clear"></div>
+          <div class="settings-info"><div class="settings-label">پاک کردن تاریخچه</div><div class="settings-sub">حذف تمام جلسات</div></div>
+          <div class="settings-action"><button class="btn btn-danger btn-sm" onclick="clearHistory()">پاک کردن</button></div>
+        </div>
+        <div class="settings-row" id="si-reset-all-row" style="border-top:1px dashed var(--border);margin-top:6px;padding-top:14px;">
+          <div class="settings-icon" id="si-reset-all"></div>
+          <div class="settings-info"><div class="settings-label" style="color:var(--red);">ریست کامل برنامه</div><div class="settings-sub">حذف همه‌چیز — روزها، حرکات، تاریخچه، آمار و تنظیمات — و شروع از صفر</div></div>
+          <div class="settings-action"><button class="btn btn-danger btn-sm" onclick="resetAppCompletely()">ریست کامل</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div style="text-align:center;padding:24px 20px 36px;">
   <div style="display:inline-block;border-top:1px solid var(--border);padding-top:20px;min-width:180px;">
     <div style="font-size:15px;font-weight:900;letter-spacing:0.12em;color:var(--text2);">IRONLOG</div>
-    <div style="font-size:10px;color:var(--text3);margin-top:3px;letter-spacing:0.06em;">v5.1</div>
+    <div style="font-size:10px;color:var(--text3);margin-top:3px;letter-spacing:0.06em;">v3.2.0</div>
     <div style="font-size:10px;color:var(--text3);margin-top:10px;letter-spacing:0.04em;">by &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="font-weight:700;color:var(--accent);">PeyByte</span></div>
   </div>
 </div>
@@ -3025,6 +3086,9 @@ const APP_SHARE_URL  = 'https://holy-nikbakht.github.io/ironlogPRO/'; // آدر�
 // ═══ آدرس Cloudflare Worker که واسط بین اپ و دیتابیس لایسنس (گیت‌هاب) است ═══
 // این آدرس رو بعد از دیپلوی ورکر (طبق راهنما) با آدرس واقعی خودتون جایگزین کنید
 const LICENSE_WORKER_URL = 'https://ironlog-licenses.nova-3d30d7.workers.dev';
+// تا وقتی که آماده‌ی انتشار نسخه‌ی نهایی نشدی، این رو false نگه دار تا تست‌ها بدون گیر کردن پشت صفحه‌ی لایسنس انجام بشن.
+// موقع انتشار فقط همین یک خط رو true کن؛ بقیه‌ی سیستم لایسنس (فرم، اعتبارسنجی، ابطال از راه دور) دست‌نخورده و آماده‌ست.
+const LICENSE_GATE_ENABLED = false;
 const CIRCUMFERENCE = 2 * Math.PI * 68;
 const RPE_LABELS    = ['','','','','','','سبک','متوسط','سخت','خیلی سخت','بیشینه'];
 const THEMES = [
@@ -6436,6 +6500,7 @@ function renderSettings() {
   st('toggle-keepalive',s.keepAliveAudio);
   st('toggle-coach', s.coachEnabled !== false);
   st('toggle-coach-push', !!s.coachPushEnabled);
+  syncLiteModeToggleUI();
   updateCoachSnoozeSettingsUI();
   syncCoachModeButtons(); // فاز ۳: نمایش حالت انتخاب‌شده‌ی مربی (آفلاین/AI)
   renderAIProfileSettings(); // فاز ۱: نمایش اهداف/نکات ایمنی/لحن/خلاصه‌ی مربی AI
@@ -6519,6 +6584,55 @@ function toggleSetting(key,el) {
   // اگه کاربر همین الان این تنظیم رو خاموش/روشن کرد، بلافاصله وضعیت صدای بی‌صدا رو هماهنگ کن
   if (key==='keepAliveAudio') updateKeepAliveState();
   if (key==='logOnlyMode') applyLogOnlyMode(appData.settings.logOnlyMode, true);
+}
+
+// ═══════════════════════════════════════════════════
+//  LITE MODE — یه سوییچ برای گوشی‌های ضعیف/قدیمی: خاموش کردن جلوه‌های سنگین
+//  (blur پشت‌زمینه، سایه‌های چندلایه، کنفتی) تا انیمیشن‌ها و اسکرول روی سخت‌افزار
+//  ضعیف روان بمونن. حالت پیش‌فرض «خودکار» با navigator.hardwareConcurrency/deviceMemory
+//  تشخیص داده می‌شه (همون منطق اسکریپت اولیه‌ی بالای body که قبل از رندر اجرا می‌شه)؛
+//  کاربر می‌تونه از تنظیمات این تصمیم رو دستی override کنه (روشن/خاموش/خودکار).
+// ═══════════════════════════════════════════════════
+function detectLowEndDevice() {
+  const cores = navigator.hardwareConcurrency || 8;
+  const mem = navigator.deviceMemory; // فقط کروم/اندروید؛ روی iOS undefined می‌مونه
+  return cores <= 4 || (typeof mem === 'number' && mem <= 4);
+}
+function getLiteModePref() {
+  return localStorage.getItem('ironlog_lite_mode') || 'auto';
+}
+function applyLiteMode() {
+  const pref = getLiteModePref();
+  const on = pref === 'on' || (pref === 'auto' && detectLowEndDevice());
+  document.documentElement.classList.toggle('lite-mode', on);
+  return on;
+}
+function setLiteModePref(pref) {
+  localStorage.setItem('ironlog_lite_mode', pref);
+  applyLiteMode();
+  syncLiteModeToggleUI();
+}
+function syncLiteModeToggleUI() {
+  const pref = getLiteModePref();
+  const on = document.documentElement.classList.contains('lite-mode');
+  const el = document.getElementById('toggle-lite-mode');
+  if (el) {
+    el.className = 'toggle' + (on ? ' on' : '');
+    el.setAttribute('role','switch');
+    el.setAttribute('aria-checked', on ? 'true' : 'false');
+  }
+  const note = document.getElementById('lite-mode-note');
+  if (note) {
+    note.textContent = pref === 'auto'
+      ? (on ? 'خودکار روشن شد (گوشی ضعیف تشخیص داده شد)' : 'خودکار خاموش (گوشی قوی تشخیص داده شد)')
+      : (pref === 'on' ? 'دستی روشن' : 'دستی خاموش');
+  }
+}
+// دکمه‌ی تنظیمات بین سه حالت می‌چرخه: خودکار → روشن → خاموش → خودکار
+function cycleLiteModePref() {
+  const cur = getLiteModePref();
+  const next = cur === 'auto' ? 'on' : (cur === 'on' ? 'off' : 'auto');
+  setLiteModePref(next);
 }
 
 // ═══════════════════════════════════════════════════
@@ -7648,6 +7762,75 @@ function showToast(msg, type) {
 }
 
 // ═══════════════════════════════════════════════════
+//  NOTIF BAR — خلاصه‌ی مینیمال بنرهای صفحه اصلی
+//  به‌جای اینکه ۵ بنر جدا (نصب/مربی/رگه/پیشنهاد/هدف) همیشه روی صفحه اصلی چیده بشن،
+//  همه‌شون تو یه پنل جمع میشن و فقط یه نوار باریک با خلاصه‌ی مهم‌ترین پیام + تعداد کل نشون داده میشه.
+//  محتوای واقعی بنرها (renderCoachBanner و بقیه) دست‌نخورده باقی می‌مونه؛ فقط ظرف بیرونیش عوض شده.
+// ═══════════════════════════════════════════════════
+let _notifSyncScheduled = false;
+function scheduleNotifSync() {
+  if (_notifSyncScheduled) return;
+  _notifSyncScheduled = true;
+  requestAnimationFrame(() => { _notifSyncScheduled = false; syncNotifBar(); });
+}
+function syncNotifBar() {
+  const bar = document.getElementById('notif-bar');
+  const panel = document.getElementById('notif-panel');
+  if (!bar || !panel) return;
+  const groups = [
+    { id: 'coach-banner-wrap',       label: () => panel.querySelector('#coach-banner-wrap .coach-title')?.textContent?.trim() },
+    { id: 'install-banner-wrap',     label: () => 'نصب اپلیکیشن روی گوشی' },
+    { id: 'smart-suggestions-wrap',  label: () => panel.querySelector('#smart-suggestions-wrap .smart-item-text, #smart-suggestions-wrap .fatigue-card-title')?.textContent?.trim() },
+    { id: 'monthly-goal-banner',     label: () => 'هدف ماهانه رو ببین' },
+    { id: 'streak-banner-wrap',      label: () => panel.querySelector('#streak-banner-wrap .streak-label')?.textContent?.trim() },
+  ];
+  let total = 0, topLabel = '';
+  groups.forEach(g => {
+    const el = panel.querySelector('#' + g.id);
+    if (!el) return;
+    const count = el.children.length;
+    if (count > 0) {
+      total += (g.id === 'smart-suggestions-wrap') ? count : 1;
+      if (!topLabel) topLabel = g.label() || '';
+    }
+  });
+  if (total === 0) {
+    bar.style.display = 'none';
+    closeNotifPanel();
+    return;
+  }
+  bar.style.display = 'flex';
+  document.getElementById('notif-bar-text').textContent = topLabel || 'اعلان‌ها';
+  const badge = document.getElementById('notif-bar-badge');
+  if (total > 1) { badge.style.display = 'flex'; badge.textContent = total; }
+  else { badge.style.display = 'none'; }
+}
+function openNotifPanel() {
+  const bar = document.getElementById('notif-bar'), panel = document.getElementById('notif-panel');
+  if (!bar || !panel) return;
+  bar.classList.add('open'); panel.classList.add('open');
+}
+function closeNotifPanel() {
+  const bar = document.getElementById('notif-bar'), panel = document.getElementById('notif-panel');
+  if (!bar || !panel) return;
+  bar.classList.remove('open'); panel.classList.remove('open');
+}
+function toggleNotifPanel() {
+  const panel = document.getElementById('notif-panel');
+  if (!panel) return;
+  if (panel.classList.contains('open')) closeNotifPanel(); else openNotifPanel();
+}
+(function initNotifObserver() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const panel = document.getElementById('notif-panel');
+    if (!panel || !window.MutationObserver) return;
+    const obs = new MutationObserver(scheduleNotifSync);
+    obs.observe(panel, { childList: true, subtree: true, characterData: true });
+    scheduleNotifSync();
+  });
+})();
+
+// ═══════════════════════════════════════════════════
 //  COACH FEATURE UNLOCK — نوار پیشرفت قفل + جشن فعال‌سازی
 // ═══════════════════════════════════════════════════
 const COACH_UNLOCK_KEY = 'ironlog_coach_unlocks';
@@ -7705,6 +7888,10 @@ function safeId(id) {
  *  که با CSS media query قابل کنترل نیستن، همه‌جا از همین تابع استفاده می‌کنیم */
 function prefersReducedMotion() {
   return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+// ═══ LITE MODE — کمک‌تابع برای بقیه‌ی کد (کنفتی، جلوه‌های سنگین و ...) ═══
+function isLiteMode() {
+  return document.documentElement.classList.contains('lite-mode');
 }
 /** escape برای قرارگیری داخل '...'' در onclick */
 function escAttr(str) {
@@ -9062,18 +9249,35 @@ function getDeviceId() {
 function normalizeLicenseCode(raw) {
   return (raw || '').trim().toUpperCase().replace(/\s+/g, '');
 }
-function checkLicenseGate() {
-  const screen = document.getElementById('license-screen');
+function isLicenseActive() {
+  // هر دو شرط لازم است: هم status باید active باشد و هم یک کد ذخیره‌شده وجود داشته باشد.
+  // این جلوی بایپس ساده‌ای را می‌گیرد که فقط با ست‌کردن ironlog_license_status='active'
+  // (بدون ست‌کردن کد) در localStorage امکان‌پذیر بود، چون verifyLicenseWithServer وقتی
+  // کد خالی باشد اصلاً درخواستی به سرور نمی‌زند و بی‌صدا رد می‌شود.
   const status = localStorage.getItem('ironlog_license_status');
-  if (status === 'active') {
+  const code = localStorage.getItem('ironlog_license_code');
+  return status === 'active' && !!code && /^IL-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code);
+}
+function checkLicenseGate() {
+  // ═══ کلید اصلی خاموش/روشن کردن کل سیستم لایسنس ═══
+  // فعلاً false یعنی هیچ چیزی از لایسنس چک/نمایش داده نمی‌شود و اپ مستقیم باز می‌شود؛
+  // موقع انتشار کافیه این مقدار true بشه تا صفحه‌ی لایسنس دقیقاً با همون کدِ فعلی برگرده.
+  if (!LICENSE_GATE_ENABLED) {
+    const screen = document.getElementById('license-screen');
+    if (screen) screen.classList.add('hidden');
+    return true;
+  }
+  const screen = document.getElementById('license-screen');
+  if (isLicenseActive()) {
     screen.classList.add('hidden');
-    return;
+    return true;
   }
   screen.classList.remove('hidden');
   const input = document.getElementById('license-input');
   const saved = localStorage.getItem('ironlog_license_code');
   if (saved) input.value = saved;
   input.addEventListener('keydown', e => { if (e.key === 'Enter') submitLicense(); });
+  return false;
 }
 async function submitLicense() {
   const btn = document.getElementById('license-submit-btn');
@@ -9105,11 +9309,14 @@ async function submitLicense() {
       localStorage.setItem('ironlog_license_code', code);
       document.getElementById('license-screen').classList.add('hidden');
       showToast && showToast('لایسنس با موفقیت فعال شد!', 'success');
+      // اپ تا این لحظه واقعاً استارت نشده (init واقعی منتظر لایسنس معتبر بوده)، پس همین حالا راه‌اندازی کن
+      if (typeof startAppAfterLicense === 'function') startAppAfterLicense();
     } else {
       const messages = {
         not_found: 'این کد لایسنس معتبر نیست',
         already_used: 'این کد قبلاً روی دستگاه دیگری فعال شده است',
         revoked: 'این کد لایسنس باطل شده است',
+        device_mismatch: 'این کد روی دستگاه دیگری فعال شده است. برای انتقال لایسنس به دستگاه جدید با پشتیبانی تماس بگیرید',
       };
       errEl.textContent = messages[data.error] || 'خطا در فعال‌سازی، دوباره تلاش کنید';
       input.classList.add('error');
@@ -9137,7 +9344,6 @@ async function verifyLicenseWithServer(force) {
 
     const lastCheck = parseInt(localStorage.getItem('ironlog_last_license_check') || '0');
     if (!force && Date.now() - lastCheck < LICENSE_VERIFY_THROTTLE_MS) return;
-    localStorage.setItem('ironlog_last_license_check', String(Date.now()));
 
     const res = await fetch(LICENSE_WORKER_URL + '/verify', {
       method: 'POST',
@@ -9145,6 +9351,9 @@ async function verifyLicenseWithServer(force) {
       body: JSON.stringify({ code, deviceId: getDeviceId() }),
       keepalive: true,
     });
+    // فقط وقتی واقعاً یک پاسخ از سرور گرفتیم throttle را ثبت کن؛ اگر آفلاین/خطای شبکه بود
+    // (که به catch زیر می‌رود) throttle ثبت نمی‌شود تا دفعه‌ی بعد که اینترنت وصل شد زودتر دوباره تلاش شود.
+    localStorage.setItem('ironlog_last_license_check', String(Date.now()));
     if (!res.ok) return; // خطای سرور — بی‌خیال، دفعه بعد دوباره تلاش می‌شود
     const data = await res.json().catch(() => null);
     if (!data || !data.ok) return;
@@ -13549,7 +13758,7 @@ function animateSummaryCounts() {
 // ─── Celebration (نسخه‌ی شیک، جایگزین کنفتی قدیمی) ───
 function celebrate() {
   if (appData.settings.logOnlyMode) return;
-  if (prefersReducedMotion()) {
+  if (prefersReducedMotion() || isLiteMode()) {
     // بدون پالس نوری/کانفتی؛ فقط یه لرزش لمسی کوتاه به‌عنوان بازخورد جشن
     haptic([20,30,20]);
     return;
@@ -13646,7 +13855,7 @@ function launchConfetti(){ celebrate(); }
 // ═══ v3.1 — جشن اختصاصی رکورد جدید (PR): طلایی‌تر، چگال‌تر، با ستاره و فلاش صفحه ═══
 function celebratePR() {
   if (appData.settings.logOnlyMode) return;
-  if (prefersReducedMotion()) {
+  if (prefersReducedMotion() || isLiteMode()) {
     haptic([20,30,20,30,20,50,80]);
     return;
   }
@@ -14860,7 +15069,7 @@ function applyStaticIcons() {
     'si-rpe':ICONS.barchart,'si-volume':ICONS.volume,'si-rest-heavy':ICONS.dumbbell,
     'si-rest-medium':ICONS.barchart,'si-rest-light':ICONS.flame,'si-goal':ICONS.target,'si-freq':ICONS.clock,
     'si-export':ICONS.upload,'si-import':ICONS.download,'si-clear':ICONS.trash,
-    'si-coach':ICONS.flame,'si-username':ICONS.user,'si-logonly':ICONS.target,'si-coach-snooze':ICONS.clock,'si-coach-categories':ICONS.barchart,'si-coach-push':ICONS.volume,'si-coach-ailimit':ICONS.barchart,
+    'si-coach':ICONS.flame,'si-username':ICONS.user,'si-logonly':ICONS.target,'si-litemode':ICONS.smartphone||ICONS.clock,'si-coach-snooze':ICONS.clock,'si-coach-categories':ICONS.barchart,'si-coach-push':ICONS.volume,'si-coach-ailimit':ICONS.barchart,
     'si-reset-all':ICONS.alert,
     'si-report-bug':ICONS.alert,'si-suggest':ICONS.bulb,'si-share-app':ICONS.share,
     'acc-ico-support':ICONS.share,
@@ -14870,10 +15079,26 @@ function applyStaticIcons() {
   const qi=document.getElementById('log-only-quick-icon');
   if(qi) qi.innerHTML=ICONS.target;
 }
+let _appStarted = false;
 function init() {
-  checkLicenseGate();
+  const licensed = checkLicenseGate();
+  setupLicenseWatcher(); // این باید همیشه فعال باشد تا اگر بعداً لایسنس باطل شد، سریع قفل شود
+  if (!licensed) {
+    // قبلاً اینجا بقیه‌ی init() (لود دیتا، رجیستر Service Worker، رزیوم تمرین و ...)
+    // بدون توجه به نتیجه‌ی گیت اجرا می‌شد؛ یعنی اگر کسی صرفاً overlay لایسنس را با
+    // DevTools حذف/مخفی می‌کرد، کل اپ از قبل کاملاً initialize و کاربردی بود.
+    // حالا تا وقتی لایسنس معتبر تایید نشود، هیچ‌کدام از این موارد اجرا نمی‌شود.
+    return;
+  }
+  startAppAfterLicense();
+  verifyLicenseWithServer(true); // چک واقعی هر بار که اپ با لایسنس معتبر باز می‌شود
+}
+function startAppAfterLicense() {
+  if (_appStarted) return; // جلوگیری از اجرای دوباره (مثلاً بعد از فعال‌سازی موفق لایسنس)
+  _appStarted = true;
   loadData();
   applyTheme(appData.settings.theme||'default');
+  applyLiteMode();
   applyBgMode(appData.settings.bgMode||'mesh');
   applyAppName(appData.settings.appName);
   applyStaticIcons();
@@ -14888,11 +15113,9 @@ function init() {
   checkAndResumeWorkout();
   registerSW();
   checkFirstVisit();
-  verifyLicenseWithServer(true); // چک واقعی هر بار که اپ باز می‌شود
   sizeNavBorder();
   window.addEventListener('resize', sizeNavBorder);
   window.addEventListener('orientationchange', sizeNavBorder);
-  setupLicenseWatcher();
   trackUsage();
   checkAbsenceNotification();
   // v2.5: setup new UX features
