@@ -2,8 +2,13 @@
 // نکته: این فایل معمولاً نیازی به تغییر دستی نداره حتی اگه هر روز
 // چندین‌بار index.html رو آپدیت کنی — چون استراتژی network-first
 // همیشه اول از شبکه نسخه‌ی تازه رو می‌گیره.
+//
+// ⚠️ استثنا: هر وقت یه فایل دیتای جدید (مثل exercises-data.js) اضافه یا
+// جایگزین کردی، عدد نسخه‌ی CACHE پایین رو یکی زیاد کن (v2 → v3 → ...).
+// این کار باعث می‌شه سرویس‌ورکر بفهمه نسخه‌ی جدیده و کش قدیمی رو کامل پاک
+// کنه — بدون این کار، ممکنه بعضی کاربرها تا مدت‌ها نسخه‌ی کهنه ببینن.
 
-const CACHE = 'ironlog-static';
+const CACHE = 'ironlog-static-v2';
 
 const SCOPE_URL = new URL(self.registration.scope);
 const BASE = SCOPE_URL.pathname;
@@ -13,7 +18,8 @@ const ASSETS = [
   BASE + 'index.html',
   BASE + 'manifest.json',
   BASE + 'icon-192.png',
-  BASE + 'icon-512.png'
+  BASE + 'icon-512.png',
+  BASE + 'exercises-data.js'
 ];
 
 self.addEventListener('install', (e) => {
@@ -47,11 +53,13 @@ self.addEventListener('fetch', (e) => {
   const isHTML = e.request.mode === 'navigate' ||
                  url.pathname.endsWith('.html') ||
                  url.pathname === BASE;
+  // فایل‌های دیتای حجیمی که ممکنه به‌روزرسانی بشن (مثل exercises-data.js)
+  // هم بهتره network-first باشن، نه cache-first — تا آپدیت‌شون هیچ‌وقت
+  // به مشکل کش قدیمی نخوره.
+  const isFreshData = url.pathname.endsWith('exercises-data.js');
 
-  if (isHTML) {
+  if (isHTML || isFreshData) {
     // Network-first: همیشه اول تلاش کن نسخه‌ی تازه رو از شبکه بگیری.
-    // چون این صفحه‌ای‌ست که هر روز چندبار عوض می‌شه، نمی‌خوایم
-    // کاربر آنلاین گیر بیفته روی نسخه‌ی کهنه‌ی کش‌شده.
     e.respondWith(
       fetch(e.request)
         .then((response) => {
