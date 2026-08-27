@@ -1,8 +1,8 @@
-const CACHE = 'ironlog-v1';
+const CACHE = 'nexet-v1';
 const ASSETS = [
-  '/ironlog/',
-  '/ironlog/index.html',
-  '/ironlog/manifest.json'
+  './',
+  './index.html',
+  './manifest.json'
 ];
 
 self.addEventListener('install', e => {
